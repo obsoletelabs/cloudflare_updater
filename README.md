@@ -1,0 +1,1 @@
+this docker container is basicly a hacky way of doing dynamic dns with cloudflare
