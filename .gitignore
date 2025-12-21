@@ -1,2 +1,2 @@
 .env
-src/app/cron.log
+__pycache__
