@@ -4,16 +4,14 @@ from check_ip import get_ip
 from pathlib import Path
 import os
 
+print("Running")
+
 API_TOKEN = os.environ.get("API_TOKEN")
+FILE_PATH = Path("/ip.txt") # location to cache ip addresses
 
-
-FILE_PATH = Path("ip.txt")
-
-
-found, ip = get_ip()
+found, ip = get_ip() # grab the current ip address
 
 if found:
-
     if FILE_PATH.exists():
         first_line = FILE_PATH.read_text().splitlines()[0]
     else:
@@ -27,8 +25,4 @@ if found:
             pass
 
     print(ip)
-
-
-while True:
-    sleep(30)
 

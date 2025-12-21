@@ -6,16 +6,13 @@ services:
     #image: my-python-app
     container_name: my-python-app
     restart: unless-stopped
-    volumes:
-      - ./src/app:/app
-    command: python main.py
-
-    extra_hosts:
-      - "whoami.obsoletelabs.org:158.69.221.89"
     
     environment:
-      - WEB_UI_URL=${WEB_UI_URL}
+      - WHOAMI_URLS=${WHOAMI_URLS}
       - API_TOKEN=${API_TOKEN}
-      - OLD_IP=${OLD_IP}
-      - NEW_IP=${NEW_IP}
+      - CRON_INTERVAL="*/1 * * * *"
+
+    # Remove for production this is only for development!
+    volumes:
+      - ./src/app:/app
 

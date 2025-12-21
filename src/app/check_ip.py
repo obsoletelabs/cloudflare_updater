@@ -1,13 +1,12 @@
 import requests
+import os
 
 debug = False
 
-URLS = [
-    "http://whoami.obsoletelabs.org:12345/"
-]
+WHOAMI_URLS = os.environ.get("WHOAMI_URLS").split(",")
 
 def get_ip():
-    for url in URLS:
+    for url in WHOAMI_URLS: # Attempts to use each url fails over to the next one
         try:
             r = requests.get(url, timeout=3)
             r.raise_for_status()
@@ -19,7 +18,7 @@ def get_ip():
             if debug: print(ip)
             break
         except Exception:
-            continue
+            continue # failover to the next url
     if ip:
         return (True, ip)
     else:
