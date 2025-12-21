@@ -10,7 +10,7 @@ if [ -z "$CRON_INTERVAL" ]; then
 fi
 
 # Write cron job with user field and newline
-echo "$CRON_INTERVAL root python /app/main.py >> /app/cron.log 2>&1" > /etc/cron.d/mycron
+echo "$CRON_INTERVAL root python3 /app/main.py >> /app/cron.log 2>&1" > /etc/cron.d/mycron
 chmod 0644 /etc/cron.d/mycron
 crontab /etc/cron.d/mycron
 
