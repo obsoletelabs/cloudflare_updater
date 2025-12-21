@@ -1,10 +1,9 @@
-from update_ip import update_ip_on_cloudflare
 from time import sleep
-from check_ip import get_ip
-from pathlib import Path
 import os
+from pathlib import Path
 
-print("Running")
+from update_ip import update_ip_on_cloudflare
+from check_ip import get_ip
 
 API_TOKEN = os.environ.get("API_TOKEN")
 FILE_PATH = Path("/ip.txt") # location to cache ip addresses
@@ -24,5 +23,4 @@ if found:
             update_ip_on_cloudflare(API_TOKEN, first_line, ip)
             pass
 
-    print(ip)
-
+    print(first_line + " --> " + ip)
