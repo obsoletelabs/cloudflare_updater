@@ -10,7 +10,7 @@ services:
     environment:
       - WHOAMI_URLS=${WHOAMI_URLS}
       - API_TOKEN=${API_TOKEN}
-      - CRON_INTERVAL="*/1 * * * *"
+      - INTERVAL_SECONDS=10
 
     # Remove for production this is only for development!
     volumes:
