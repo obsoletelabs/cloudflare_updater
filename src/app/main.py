@@ -8,7 +8,7 @@ from check_ip import get_ip
 old_ip = None # initialize old_ip variable
 
 try:
-    sleep_time = os.environ.get("INTERVAL_SECONDS") # check interval from environment variable
+    sleep_time = int(os.environ.get("INTERVAL_SECONDS")) # check interval from environment variable
 except:
     sleep_time = 300 # Set default to 5 minutes
 
