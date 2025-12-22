@@ -16,13 +16,15 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy dependencies and install
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Copy only requirements first (better caching) 
+COPY requirements.txt /app/
+# Install Python deps (cached unless requirements.txt changes) 
+RUN pip install --upgrade pip \ 
+    && pip install -r requirements.txt
 
-# Copy the application code
-COPY . .
+COPY app/ /app/
 
 
 # Run entrypoint
 ENTRYPOINT ["python", "main.py"]
+
