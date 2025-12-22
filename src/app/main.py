@@ -2,25 +2,45 @@ from time import sleep
 import os
 from pathlib import Path
 
-from update_ip import update_ip_on_cloudflare
-from check_ip import get_ip
+import update_ip
+from check_ip import get_ip 
 
-API_TOKEN = os.environ.get("API_TOKEN")
-FILE_PATH = Path("/ip.txt") # location to cache ip addresses
+old_ip = None # initialize old_ip variable
 
-found, ip = get_ip() # grab the current ip address
+try:
+    sleep_time = os.environ.get("INTERVAL_SECONDS") # check interval from environment variable
+except:
+    sleep_time = 300 # Set default to 5 minutes
 
-if found:
-    if FILE_PATH.exists():
-        first_line = FILE_PATH.read_text().splitlines()[0]
-    else:
-        first_line = None
+# Get API token from environment variable
+try:
+    API_TOKEN = os.environ.get("API_TOKEN")
+except:
+    print("API_TOKEN environment variable not set. Exiting.")
+    exit(1)
 
-    if first_line != ip:
-        FILE_PATH.write_text(ip)
-        print("WARNING ip change detected!!!")
-        if first_line != None:
-            update_ip_on_cloudflare(API_TOKEN, first_line, ip)
-            pass
+def main():
+    # Main loop
+    while True:
+        sleep(sleep_time)  # wait 5 minutes between checks
 
-    print(first_line + " --> " + ip)
+        #API_TOKEN = os.environ.get("API_TOKEN")
+        #FILE_PATH = Path("/ip.txt") # location to cache ip addresses
+
+        found, ip = get_ip() # grab the current ip address
+
+        try:
+            if found and ip != old_ip: # if ip has changed
+                new_ip = ip
+                print(f"IP change detected: {old_ip} --> {new_ip}")
+                update_ip.cloudflare(API_TOKEN, old_ip, new_ip)
+                old_ip = ip
+                print(f"Updated cached IP to: {new_ip}")
+        except:
+            print("Error updating IP address.")
+
+    
+
+
+if __name__ == "__main__": 
+    main()

@@ -23,9 +23,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the application code
 COPY . .
 
-# Add entrypoint script
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
 
 # Run entrypoint
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["python", "main.py"]
