@@ -17,9 +17,6 @@ logger = logging.getLogger(__name__)
 
 logger.info("Service starting up...")
 
-
-old_ip = "0.0.0.0" # initialize old_ip variable
-
 try:
     sleep_time = int(os.environ.get("INTERVAL_SECONDS")) # check interval from environment variable
 except:
@@ -41,6 +38,15 @@ except:
         "http://whoami.obsoletelabs.org:12345/"
     ]
 logger.info(f"Using WHOAMI_URLS: {WHOAMI_URLS}")
+
+logger.info("Retrieving initial IP address...")
+found, initial_ip = get_ip(WHOAMI_URLS=WHOAMI_URLS)
+if found:
+    logger.info(f"Initial IP: {initial_ip}")
+    old_ip = initial_ip
+else:
+    logger.warning("Could not retrieve initial IP address. Will default to 0.0.0.0, will update on first successful check.")
+    old_ip = "0.0.0.0" # initialize old_ip variable
 
 def main():
     # Main loop
