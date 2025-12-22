@@ -50,6 +50,8 @@ else:
 
 def main():
     # Main loop
+    global old_ip
+    
     while True:
         logger.info("Checking for IP address change...")
 
