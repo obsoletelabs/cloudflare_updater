@@ -1,18 +1,25 @@
 import requests
 import os
 
+import logging
+import sys
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[logging.StreamHandler(sys.stdout)]
+)
+logger = logging.getLogger(__name__)
+
 debug = False
 
-try:
-    WHOAMI_URLS = os.environ.get("WHOAMI_URLS").split(",")
-except:
-    WHOAMI_URLS = [
-        "http://whoami.obsoletelabs.org:12345/"
-    ]
 
-def get_ip():
+
+def get_ip(WHOAMI_URLS=["http://whoami.obsoletelabs.org:12345/"]):
+
     for url in WHOAMI_URLS: # Attempts to use each url fails over to the next one
         try:
+            logger.info(f"Checking IP via {url}")
             result = requests.get(url, timeout=3)
             result.raise_for_status()
             text = result.text.strip() # clean up the text
