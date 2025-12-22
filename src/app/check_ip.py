@@ -3,7 +3,12 @@ import os
 
 debug = False
 
-WHOAMI_URLS = os.environ.get("WHOAMI_URLS").split(",")
+try:
+    WHOAMI_URLS = os.environ.get("WHOAMI_URLS").split(",")
+except:
+    WHOAMI_URLS = [
+        "http://whoami.obsoletelabs.org:12345/"
+    ]
 
 def get_ip():
     for url in WHOAMI_URLS: # Attempts to use each url fails over to the next one
