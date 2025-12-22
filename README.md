@@ -11,11 +11,11 @@ Well, thats not a problem! This service records your "old IP" and only updates r
 
 This container does not need any ports bound, as it purely sends outgoing traffic, and has no web interface. Environment variables include:
 
-WHOAMI_URLS: A list of urls you wish to use to check your IP, cascading if one fails. This will default to ```whoami.obsoletelabs.org:12345```.
+**WHOAMI_URLS:** A list of urls you wish to use to check your IP, cascading if one fails. This will default to ```whoami.obsoletelabs.org:12345```. 
 
-API_TOKEN: This is your cloudflare API token, make sure it can read and write in the zones you want it to update.
+**API_TOKEN:** This is your cloudflare API token, make sure it can read and write in the zones you want it to update. Note, the container cannot operate if you do not set this.
 
-INTERVAL_SECONDS: This is where you can configure how frequently the service will poll your IP. The more frequent the less downtime you will experience, but the harsher on your system the service will be. We reccomend a time between 60-1800 seconds for your checking interval. It defaults to 1800 seconds (30 minutes).
+**INTERVAL_SECONDS**: This is where you can configure how frequently the service will poll your IP. The more frequent the less downtime you will experience, but the harsher on your system the service will be. We reccomend a time between 60-1800 seconds for your checking interval. It defaults to 300 seconds (5 minutes).
 
 
 # Need help?
