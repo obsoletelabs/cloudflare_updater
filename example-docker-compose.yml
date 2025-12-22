@@ -3,4 +3,4 @@ services:
     image: ghcr.io/obsoletelabs/cloudflare_updater:main
     environment:
       - API_TOKEN=${API_TOKEN}
-      - INTERVAL_SECONDS=600
+      - INTERVAL_SECONDS=600 # technically irrelevant
