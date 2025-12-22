@@ -51,7 +51,7 @@ else:
 def main():
     # Main loop
     global old_ip
-    
+
     while True:
         logger.info("Checking for IP address change...")
 
@@ -66,7 +66,7 @@ def main():
             logger.warning("Could not retrieve current IP address.")
 
         try:
-            logger.info(f"Old IP: {old_ip}")
+            #logger.info(f"Old IP: {old_ip}")
             if found and current_ip != old_ip: # if ip has changed
 
                 logger.info(f"IP change detected: {old_ip} --> {current_ip}")
