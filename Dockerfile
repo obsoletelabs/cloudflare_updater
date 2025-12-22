@@ -9,7 +9,7 @@ ENV PYTHONUNBUFFERED=1
 ENV INTERVAL_SECONDS=300
 
 # Set working directory
-WORKDIR /app
+WORKDIR /src/app
 
 # Install system dependencies
 RUN apt-get update \
@@ -21,11 +21,8 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the application code
-COPY . .
-
-# Add entrypoint script
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+COPY /src/. .
 
 # Run entrypoint
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["python", "main.py"]
+

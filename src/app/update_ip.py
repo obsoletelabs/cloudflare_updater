@@ -2,7 +2,7 @@ import requests
 
 BASE_URL = "https://api.cloudflare.com/client/v4"
 
-def update_ip_on_cloudflare(api_token, old_ip, new_ip):
+def cloudflare(api_token, old_ip, new_ip):
     """
     Replaces all DNS A records pointing to `old_ip` with `new_ip` across all Cloudflare zones.
 
