@@ -17,14 +17,14 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy dependencies and install
-COPY requirements.txt .
+COPY src/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the application code
 COPY . .
 
 # Add entrypoint script
-COPY entrypoint.sh /entrypoint.sh
+COPY src/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 # Run entrypoint
