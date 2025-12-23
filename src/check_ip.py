@@ -1,8 +1,8 @@
-import requests
-import os
+import sys
 
 import logging
-import sys
+
+import requests
 
 logging.basicConfig(
     level=logging.INFO,
@@ -15,7 +15,7 @@ debug = False
 
 
 
-def get_ip(WHOAMI_URLS=["http://whoami.obsoletelabs.org:12345/"]):
+def get_ip(WHOAMI_URLS):
 
     for url in WHOAMI_URLS: # Attempts to use each url fails over to the next one
         try:
@@ -29,7 +29,7 @@ def get_ip(WHOAMI_URLS=["http://whoami.obsoletelabs.org:12345/"]):
                     line = line.strip("RemoteAddr: ")
                     ip, *port = line.split(":")
 
-            logger.debug(ip)
+                    logger.debug(ip)
             break
         
         except Exception:

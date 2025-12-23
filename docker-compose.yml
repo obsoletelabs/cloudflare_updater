@@ -5,10 +5,13 @@ services:
     #image: my-python-app
     container_name: my-python-app
     restart: unless-stopped
+
+    env_file:
+      - .env
     
     environment:
-      - WHOAMI_URLS=${WHOAMI_URLS}
-      - API_TOKEN=${API_TOKEN}
+      #- WHOAMI_URLS=${WHOAMI_URLS}
+      #- API_TOKEN=${API_TOKEN}
       - INTERVAL_SECONDS=1800 # wait 30 minutes inbetween checks
 
     # Remove for production this is only for development!
