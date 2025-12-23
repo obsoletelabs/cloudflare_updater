@@ -35,7 +35,6 @@ def cloudflare(api_token, old_ip, new_ip):
         while True:
             resp = requests.get(f"{BASE_URL}/zones", headers=headers, params={"page": page, "per_page": 50})
             if resp.status_code == 403:
-                #print("403 Forbidden: You don't have access to some zones, skipping...")
                 logger.warning("403 Forbidden: You don't have access to some zones, skipping...")
                 break
             resp.raise_for_status()
@@ -56,7 +55,6 @@ def cloudflare(api_token, old_ip, new_ip):
                 params={"page": page, "per_page": 100, "type": "A"}
             )
             if resp.status_code == 403:
-                #print(f"403 Forbidden: No permission for zone {zone_id}, skipping...")
                 logger.warning(f"403 Forbidden: No permission for zone {zone_id}, skipping...")
                 break
             resp.raise_for_status()
@@ -82,17 +80,14 @@ def cloudflare(api_token, old_ip, new_ip):
                 json=payload
             )
             if resp.status_code == 403:
-                #print(f"403 Forbidden: Cannot update record {name} in zone {zone_id}, skipping...")
                 logger.warning(f"403 Forbidden: Cannot update record {name} in zone {zone_id}, skipping...")
                 return
             resp.raise_for_status()
         except requests.RequestException as e:
-            #print(f"Error updating record {name}: {e}, payload: {payload}, response: {getattr(resp, 'text', None)}")
             logger.error(f"Error updating record {name}: {e}, payload: {payload}, response: {getattr(resp, 'text', None)}")
 
 
     zones = get_all_zones()
-    #print(f"Found {len(zones)} zones.")
     logger.info(f"Found {len(zones)} zones.")
 
     for zone in zones:
@@ -102,9 +97,7 @@ def cloudflare(api_token, old_ip, new_ip):
 
         for record in records:
             if record["content"] == old_ip:
-                #print(f"[{zone_name}] Updating {record['name']} ({old_ip} → {new_ip})")
                 logger.info(f"[{zone_name}] Updating {record['name']} ({old_ip} → {new_ip})")
                 update_dns_record(zone_id, record["id"], record["name"], record["ttl"], record["proxied"])
 
-    #print("Update complete.")
     logger.info("Update complete.")

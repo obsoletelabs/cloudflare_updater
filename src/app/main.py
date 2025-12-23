@@ -35,7 +35,6 @@ try:
         logger.error(r.get("errors"))
         exit(1)
 except:
-    #print("API_TOKEN environment variable not set. Exiting.")
     logger.error("API_TOKEN environment variable not set. Exiting.")
     exit(1)
 
@@ -68,7 +67,6 @@ def main():
         #FILE_PATH = Path("/ip.txt") # location to cache ip addresses
 
         found, current_ip = get_ip(WHOAMI_URLS=WHOAMI_URLS) # grab the current ip address
-        #print(f"Current IP: {ip}")
         if found:
             logger.info(f"Current IP: {current_ip}")
         else:
@@ -81,17 +79,13 @@ def main():
                 logger.info(f"IP change detected: {old_ip} --> {current_ip}")
                 try:
                     logger.info("Updating IP address via Cloudflare API...")
-                    #print("Updating IP address via Cloudflare API...")
                     update_ip.cloudflare(API_TOKEN, old_ip, current_ip)
                 except Exception as e:
                     logger.error(f"Error updating IP address via Cloudflare API: {e}")
-                    #print(f"Error updating IP address via Cloudflare API: {e}")
 
                 old_ip = current_ip
-                #print(f"Updated cached IP to: {new_ip}")
                 logger.info(f"Updated IP address to: {current_ip}")
         except:
-            #print("Error updating IP address.")
             logger.error("Error updating IP address.")
         
         logger.info(f"Sleeping for {sleep_time} seconds...")

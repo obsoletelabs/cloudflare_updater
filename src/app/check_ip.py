@@ -29,7 +29,7 @@ def get_ip(WHOAMI_URLS=["http://whoami.obsoletelabs.org:12345/"]):
                     line = line.strip("RemoteAddr: ")
                     ip, *port = line.split(":")
 
-            if debug: print(ip)
+            logger.debug(ip)
             break
         
         except Exception:
