@@ -79,7 +79,7 @@ DEBUG_IP = os.environ.get("DEBUG_IP", None)
 def main():
     # Main loop
     global old_ip # is this needed?
-    if DEBUG_IP: old_ip = DEBUG_IP
+    if DEBUG_IP: old_ip = DEBUG_IP # A special debug ip used to verify ip change logic
 
     while True:
         logger.info("Checking for IP address change...")
