@@ -1,7 +1,6 @@
 services:
   app:
     build:
-      context: ./src
       dockerfile: Dockerfile
     #image: my-python-app
     container_name: my-python-app
@@ -14,5 +13,4 @@ services:
 
     # Remove for production this is only for development!
     volumes:
-      - ./src/app:/app
-
+      - ./src:/app
