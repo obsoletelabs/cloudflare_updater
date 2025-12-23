@@ -13,9 +13,14 @@ This container does not need any ports bound, as it purely sends outgoing traffi
 
 **WHOAMI_URLS:** A list of urls you wish to use to check your IP, cascading if one fails. This will default to ```whoami.obsoletelabs.org:12345```. 
 
-**API_TOKEN:** This is your cloudflare API token, make sure it can read and write in the zones you want it to update. Note, the container cannot operate if you do not set this.
+**CLOUDFLARE_API_TOKEN:** This is your cloudflare API token, make sure it can read and write in the zones you want it to update. Note, the container cannot operate if you do not set this.
 
 **INTERVAL_SECONDS**: This is where you can configure how frequently the service will poll your IP. The more frequent the less downtime you will experience, but the harsher on your system the service will be. We reccomend a time between 60-1800 seconds for your checking interval. It defaults to 300 seconds (5 minutes).
+
+### Notifications
+
+**DISCORD_WEBHOOK_URL**: This is a discord webhook url that can optionaly be added to send notifications to discord
+
 
 
 # Need help?
@@ -30,6 +35,13 @@ services:
   obsoletelabs_cloudflare_updater:
     image: ghcr.io/obsoletelabs/cloudflare_updater:main
     environment:
-      - API_TOKEN=${API_TOKEN}
-      - INTERVAL_SECONDS=600 # technically irrelevant
+      - WHOAMI_URLS=http://whoami.obsoletelabs.org:12345 # a list of whoami urls separated by commas
+      
+
+      - CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN}
+      - INTERVAL_SECONDS=600 # Optional delay setting defaults to 300
+
+      # Notification Methods
+      # DISCORD_WEBHOOK_URL=
+
 ```

@@ -10,7 +10,6 @@ from check_ip import get_ip
 import webhooks
 
 
-
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
@@ -26,16 +25,16 @@ sleep_time = int(os.environ.get("INTERVAL_SECONDS", 300)) # check interval from 
 logger.info("Check interval set to %s seconds.", sleep_time)
 
 # Get API token from environment variable
-API_TOKEN = os.environ.get("API_TOKEN", None)
-if API_TOKEN:
-    r = requests.get("https://api.cloudflare.com/client/v4/user/tokens/verify", timeout=3, headers={"Authorization": f"Bearer {API_TOKEN}"}).json()
+CLOUDFLARE_API_TOKEN = os.environ.get("CLOUDFLARE_API_TOKEN", None)
+if CLOUDFLARE_API_TOKEN:
+    r = requests.get("https://api.cloudflare.com/client/v4/user/tokens/verify", timeout=3, headers={"Authorization": f"Bearer {CLOUDFLARE_API_TOKEN}"}).json()
 
     if r.get("success") is False: # check if api key is invalid
         logger.error("Token is invalid")
         logger.error(r.get("errors"))
         exit(1)
 else:
-    logger.error("API_TOKEN environment variable not set. Exiting.")
+    logger.error("CLOUDFLARE_API_TOKEN environment variable not set. Exiting.")
     exit(1)
 
 
@@ -71,7 +70,7 @@ def main():
     while True:
         logger.info("Checking for IP address change...")
 
-        #API_TOKEN = os.environ.get("API_TOKEN")
+        #CLOUDFLARE_API_TOKEN = os.environ.get("CLOUDFLARE_API_TOKEN")
         #FILE_PATH = Path("/ip.txt") # location to cache ip addresses
 
         found, current_ip = get_ip(whoami_urls=WHOAMI_URLS) # grab the current ip address
@@ -87,12 +86,13 @@ def main():
                 # Ip change detected
                 logger.info("IP change detected: %s --> %s", old_ip, current_ip)
 
-                if DISCORD_WEBHOOK_URL: webhooks.discord(DISCORD_WEBHOOK_URL, f"# WARNING ip {old_ip} CHANGED to {current_ip}!", username="IP notifier")
+                if DISCORD_WEBHOOK_URL:
+                    webhooks.discord(DISCORD_WEBHOOK_URL, f"# WARNING ip {old_ip} CHANGED to {current_ip}!", username="IP notifier")
 
 
                 try:
                     logger.info("Updating IP address via Cloudflare API...")
-                    update_ip.cloudflare(API_TOKEN, old_ip, current_ip)
+                    update_ip.cloudflare(CLOUDFLARE_API_TOKEN, old_ip, current_ip)
                 except Exception as e:
                     logger.error("Error updating IP address via Cloudflare API: %s", e)
 
