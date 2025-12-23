@@ -21,3 +21,15 @@ This container does not need any ports bound, as it purely sends outgoing traffi
 # Need help?
 
 We dont provide help to our users. We don't really care if you use us or not. We don't profit off you, we don't store logs, mostly because we don't know how to, therefore we cannot, and will not help. 
+
+
+## well fine here take this compose file figure it out your self
+
+```yaml
+services:
+  obsoletelabs_cloudflare_updater:
+    image: ghcr.io/obsoletelabs/cloudflare_updater:main
+    environment:
+      - API_TOKEN=${API_TOKEN}
+      - INTERVAL_SECONDS=600 # technically irrelevant
+```
