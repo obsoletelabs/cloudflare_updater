@@ -9,7 +9,9 @@ import requests
 
 import update_ip
 from check_ip import get_ip
-import webhooks
+
+import notify.webhooks as webhooks
+import notify.send_email_notification as whydidyougivemealongname
 
 # Set up logging, default to INFO level
 LOGGING_LEVEL = os.environ.get("LOG_LEVEL", "INFO").strip().upper()
