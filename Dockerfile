@@ -9,7 +9,7 @@ ENV PYTHONUNBUFFERED=1
 ENV INTERVAL_SECONDS=300
 
 # Set working directory
-WORKDIR /src/app
+WORKDIR /src
 
 # Install system dependencies
 RUN apt-get update \
@@ -17,12 +17,12 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy only requirements first (better caching) 
-COPY requirements.txt /app/
+COPY requirements.txt /
 # Install Python deps (cached unless requirements.txt changes) 
 RUN pip install --upgrade pip \ 
     && pip install -r requirements.txt
 
-COPY /app/ /app/
+COPY /src/ /app/
 
 
 # Run entrypoint
