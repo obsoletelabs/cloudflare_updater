@@ -10,8 +10,21 @@ from check_ip import get_ip
 import webhooks
 
 
+LOGGING_LEVEL = os.environ.get("LOGGING_LEVEL", None).strip()
+
+if LOGGING_LEVEL == "DEBUG": LOG_LEVEL = logging.DEBUG
+elif LOGGING_LEVEL == "INFO": LOG_LEVEL = logging.INFO
+elif LOGGING_LEVEL == "WARNING": LOG_LEVEL = logging.WARNING
+elif LOGGING_LEVEL == "ERROR": LOG_LEVEL = logging.ERROR
+elif LOGGING_LEVEL == "CRITICAL": LOG_LEVEL = logging.CRITICAL
+
+else:
+    print("Log level not set defaulting to WARNING") 
+    LOG_LEVEL = logging.WARNING
+print(f"Logging level set to {LOGGING_LEVEL}")
+
 logging.basicConfig(
-    level=logging.INFO,
+    level=LOG_LEVEL,
     format="%(asctime)s [%(levelname)s] %(message)s",
     handlers=[logging.StreamHandler(sys.stdout)]
 )
@@ -60,12 +73,13 @@ else:
 # Notifier debugger
 #if DISCORD_WEBHOOK_URL: webhooks.discord(DISCORD_WEBHOOK_URL, f"# WARNING ip DEBUG CHANGED to OTHER DEBUG!", username="IP notifier")
 
-
+DEBUG_IP = os.environ.get("DEBUG_IP", None)
 
 
 def main():
     # Main loop
     global old_ip # is this needed?
+    if DEBUG_IP: old_ip = DEBUG_IP
 
     while True:
         logger.info("Checking for IP address change...")

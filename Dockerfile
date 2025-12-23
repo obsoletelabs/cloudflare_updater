@@ -27,4 +27,3 @@ COPY src/ /app/
 
 # Run entrypoint
 ENTRYPOINT ["python", "main.py"]
-

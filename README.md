@@ -36,10 +36,10 @@ services:
     image: ghcr.io/obsoletelabs/cloudflare_updater:main
     environment:
       - WHOAMI_URLS=http://whoami.obsoletelabs.org:12345 # a list of whoami urls separated by commas
-      
 
       - CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN}
       - INTERVAL_SECONDS=600 # Optional delay setting defaults to 300
+      - LOGGING_LEVEL=INFO # Option logging level defaults to warnings
 
       # Notification Methods
       # DISCORD_WEBHOOK_URL=
