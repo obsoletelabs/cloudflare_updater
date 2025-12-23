@@ -1,17 +1,19 @@
 services:
-  obsoletelabs_cloudflare_updater:
-    image: ghcr.io/obsoletelabs/cloudflare_updater:main
+  app:
+    build:
+      dockerfile: Dockerfile
+    #image: my-python-app
+    container_name: my-python-app
+    restart: unless-stopped
+
+    env_file:
+      - .env
+    
     environment:
-      # Required:
-      - CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN}
+      #- WHOAMI_URLS=${WHOAMI_URLS}
+      #- API_TOKEN=${API_TOKEN}
+      - INTERVAL_SECONDS=10
 
-      # Optional:
-      - WHOAMI_URLS=http://whoami.obsoletelabs.org:12345/ # Comma list of whoami urls
-      - OVERRIDE_OBSOLETE_WHOAMI=true # Set this to remove obsolete whoami
-      - CHECK_INTERVAL_SECONDS=600 # Delay between ip checks
-      - RETRY_INTERVAL_SECONDS=10 # Delay between ip check retries
-      - LOG_LEVEL=INFO # Container logging level
-      - INITIAL_IP=192.168.0.1
-
-      # External notification sources:
-      - DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/1234567890/abcdefghijklmnopqrstuvwxyz
+    # Remove for production this is only for development!
+    volumes:
+      - ./app:/app
