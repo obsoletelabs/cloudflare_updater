@@ -5,11 +5,8 @@ FROM python:3.12-slim
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# Set default interval in seconds (can be overridden by env)
-ENV INTERVAL_SECONDS=300
-
 # Set working directory
-WORKDIR /src
+WORKDIR /app
 
 # Install system dependencies
 RUN apt-get update \
@@ -17,12 +14,12 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy only requirements first (better caching) 
-COPY requirements.txt /
+COPY requirements.txt /app/
 # Install Python deps (cached unless requirements.txt changes) 
 RUN pip install --upgrade pip \ 
     && pip install -r requirements.txt
 
-COPY /src/ /app/
+COPY /app/ /app/
 
 
 # Run entrypoint
