@@ -100,7 +100,7 @@ def cloudflare(api_token, old_ip, new_ip):
 
         for record in records:
             if record["content"] == old_ip:
-                logger.info("[%s] Updating {record['name']} (%s --> %s)", zone_name, old_ip, new_ip)
+                logger.info(f"[%s] Updating {record['name']} (%s --> %s)", zone_name, old_ip, new_ip)
                 update_dns_record(zone_id, record["id"], record["name"], record["ttl"], record["proxied"])
 
     logger.info("Update complete.")

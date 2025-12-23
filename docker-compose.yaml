@@ -1,0 +1,19 @@
+services:
+  app:
+    build:
+      dockerfile: Dockerfile
+    #image: my-python-app
+    container_name: my-python-app
+    restart: unless-stopped
+
+    env_file:
+      - .env
+    
+    environment:
+      #- WHOAMI_URLS=${WHOAMI_URLS}
+      #- API_TOKEN=${API_TOKEN}
+      - INTERVAL_SECONDS=10
+
+    # Remove for production this is only for development!
+    volumes:
+      - ./src:/app

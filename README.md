@@ -11,13 +11,19 @@ Well, thats not a problem! This service records your "old IP" and only updates r
 
 This container does not need any ports bound, as it purely sends outgoing traffic, and has no web interface. Environment variables include:
 
-**WHOAMI_URLS:** A list of urls you wish to use to check your IP, cascading if one fails. This will default to ```whoami.obsoletelabs.org:12345```. 
+**WHOAMI_URLS:** A list of urls you wish to use to check your IP, cascading if one fails. This will by default append  ```whoami.obsoletelabs.org:12345``` to your list (including no list specified). 
+
+**OVERRIDE_OBSOLETE_WHOAMI:** If you do not wish to have an obsolete whoami as a fallback, set this value to anything besides ```false```. 
 
 **CLOUDFLARE_API_TOKEN:** This is your cloudflare API token, make sure it can read and write in the zones you want it to update. Note, the container cannot operate if you do not set this.
 
-**INTERVAL_SECONDS**: This is where you can configure how frequently the service will poll your IP. The more frequent the less downtime you will experience, but the harsher on your system the service will be. We reccomend a time between 60-1800 seconds for your checking interval. It defaults to 600 seconds (10 minutes).
+**CHECK_INTERVAL_SECONDS:** This is where you can configure how frequently the service will poll your IP. The more frequent the less downtime you will experience, but the harsher on your system the service will be. We reccomend a time between 60-1800 seconds for your checking interval. It defaults to 600 seconds (10 minutes).
 
-**RETRY_INTERVAL_SECONDS**: This is where you can figure how often the service will retry if all poll sources fail to respond. This defaults to 10s.
+**RETRY_INTERVAL_SECONDS:** This is where you can figure how often the service will retry if all poll sources fail to respond. This defaults to 10s.
+
+**LOG_LEVEL:** This lets you set the logging level of the output. Valid options are debug, info, warning, error, critical. This defaults to info, and we do not recommend changing this.
+
+**INITIAL_IP:** This lets you set a predetermined initial IP address for the system to use. This can be used to verify it changes the records you expect it to alter without having to wait for your ip address to change. This will set itself to your current ip as determined by the WHOAMI URLs if not set.
 
 ### Notifications
 
@@ -37,13 +43,18 @@ services:
   obsoletelabs_cloudflare_updater:
     image: ghcr.io/obsoletelabs/cloudflare_updater:main
     environment:
-      - WHOAMI_URLS=http://whoami.obsoletelabs.org:12345 # a list of whoami urls separated by commas
-
+      # Required:
       - CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN}
-      - INTERVAL_SECONDS=600 # Optional delay setting defaults to 300
-      - LOGGING_LEVEL=INFO # Option logging level defaults to warnings
 
-      # Notification Methods
-      # DISCORD_WEBHOOK_URL=
+      # Optional:
+      - WHOAMI_URLS=http://whoami.obsoletelabs.org:12345/ # Comma list of whoami urls
+      - OVERRIDE_OBSOLETE_WHOAMI=true # Set this to remove obsolete whoami
+      - CHECK_INTERVAL_SECONDS=600 # Delay between ip checks
+      - RETRY_INTERVAL_SECONDS=10 # Delay between ip check retries
+      - LOG_LEVEL=INFO # Container logging level
+      - INITIAL_IP=192.168.0.1
+
+      # External notification sources:
+      - DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/1234567890
 
 ```
