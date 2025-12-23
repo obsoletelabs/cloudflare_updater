@@ -9,7 +9,7 @@ ENV PYTHONUNBUFFERED=1
 ENV INTERVAL_SECONDS=300
 
 # Set working directory
-WORKDIR /app
+WORKDIR /src/app
 
 # Install system dependencies
 RUN apt-get update \
