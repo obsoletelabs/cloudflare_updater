@@ -1,4 +1,5 @@
 """Main.py what more can i say"""
+# pylint: disable=global-statement
 
 from time import sleep
 import os
@@ -11,7 +12,6 @@ import update_ip
 from check_ip import get_ip
 
 import notify.webhooks as webhooks
-import notify.send_email_notification as whydidyougivemealongname
 
 # Set up logging, default to INFO level
 LOGGING_LEVEL = os.environ.get("LOG_LEVEL", "INFO").strip().upper()
@@ -34,14 +34,14 @@ logging.basicConfig(
     handlers=[logging.StreamHandler(sys.stdout)]
 )
 logger = logging.getLogger(__name__)
-logger.critical(f"Logging level set to {LOGGING_LEVEL}") # log the logging level as critical to ensure logged.
+logger.critical("Logging level set to %s", LOGGING_LEVEL) # log the logging level as critical to ensure logged.
 
 
 logger.info("Service starting up...") # log startup
 
 
 # Get sleep time from environment variable or use default
-sleep_time = int(os.environ.get("CHECK_INTERVAL_SECONDS", 600)) 
+sleep_time = int(os.environ.get("CHECK_INTERVAL_SECONDS", 600))
 logger.info("Check interval set to %s seconds.", sleep_time)
 
 # Get retry interval from environment variable or use default
@@ -79,16 +79,16 @@ logger.info("Initial IP set to: %s", initial_ip)
 OLD_IP = initial_ip
 
 # NOTIFIERS!!!
-exernal_notifiers = False
+EXTERNAL_NOTIFIERS = False
 
 DISCORD_WEBHOOK_URL = os.environ.get("DISCORD_WEBHOOK_URL", False)
 SMTP_NOTIFIER_ENABLED = os.environ.get("SMTP_NOTIFIER_ENABLED", "false").lower() == "true"
 
 if DISCORD_WEBHOOK_URL:
-    exernal_notifiers = True
+    EXTERNAL_NOTIFIERS = True
     logger.info("Discord webhook notifier enabled.")
 elif SMTP_NOTIFIER_ENABLED:
-    exernal_notifiers = True
+    EXTERNAL_NOTIFIERS = True
     logger.info("SMTP email notifier enabled.")
 else:
     logger.info("No external notifiers enabled.")
@@ -109,7 +109,7 @@ def main():
     """The Main Function"""
     # Main loop
     global OLD_IP
-    global exernal_notifiers
+    global EXTERNAL_NOTIFIERS
 
     while True:
         logger.info("Checking for IP address change...")
@@ -121,9 +121,9 @@ def main():
             if found:
                 logger.info("Current IP: %s", current_ip)
                 break
-            logger.warning(f"Could not retrieve current IP address, waiting {retry_interval} seconds.")
+            logger.warning("Could not retrieve current IP address, waiting %i seconds.", retry_interval)
             sleep(retry_interval)
-        
+
         # Compare with OLD_IP and update if changed
         try:
             if found and current_ip != OLD_IP: # if ip has changed
@@ -131,7 +131,7 @@ def main():
                 # Ip change detected
                 logger.info("IP change detected: %s --> %s", OLD_IP, current_ip)
                 # Send notifications if enabled
-                if exernal_notifiers:
+                if EXTERNAL_NOTIFIERS:
                     notify_ip_change(OLD_IP, current_ip)
 
                 # Update via Cloudflare API

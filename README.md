@@ -52,7 +52,6 @@ services:
       - CHECK_INTERVAL_SECONDS=600 # Delay between ip checks
       - RETRY_INTERVAL_SECONDS=10 # Delay between ip check retries
       - LOG_LEVEL=INFO # Container logging level
-      - INITIAL_IP=192.168.0.1
 
       # External notification sources:
       - DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/1234567890
