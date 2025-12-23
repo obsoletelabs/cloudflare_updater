@@ -12,23 +12,19 @@ from check_ip import get_ip
 import webhooks
 
 
-LOGGING_LEVEL = os.environ.get("LOGGING_LEVEL", None).strip()
+LOGGING_LEVEL = os.environ.get("LOGGING_LEVEL", "INFO").strip().upper()
 
 if LOGGING_LEVEL == "DEBUG":
     LOG_LEVEL = logging.DEBUG
-elif LOGGING_LEVEL == "INFO":
-    LOG_LEVEL = logging.INFO
 elif LOGGING_LEVEL == "WARNING":
     LOG_LEVEL = logging.WARNING
 elif LOGGING_LEVEL == "ERROR":
     LOG_LEVEL = logging.ERROR
 elif LOGGING_LEVEL == "CRITICAL":
     LOG_LEVEL = logging.CRITICAL
-
 else:
-    print("Log level not set defaulting to INFO")
     LOG_LEVEL = logging.INFO
-print(f"Logging level set to {LOGGING_LEVEL}")
+    LOGGING_LEVEL = "INFO"
 
 logging.basicConfig(
     level=LOG_LEVEL,
@@ -36,13 +32,16 @@ logging.basicConfig(
     handlers=[logging.StreamHandler(sys.stdout)]
 )
 logger = logging.getLogger(__name__)
+logger.critical(f"Logging level set to {LOGGING_LEVEL}")
 
 logger.info("Service starting up...")
 
 
-sleep_time = int(os.environ.get("INTERVAL_SECONDS", 300)) # check interval from environment variable
-
+sleep_time = int(os.environ.get("INTERVAL_SECONDS", 600)) # check interval from environment variable
 logger.info("Check interval set to %s seconds.", sleep_time)
+
+retry_interval = int(os.environ.get("RETRY_INTERVAL_SECONDS", 10)) # retry interval from environment variable
+logger.info("Retry interval set to %s seconds.", retry_interval)
 
 # Get API token from environment variable
 CLOUDFLARE_API_TOKEN = os.environ.get("CLOUDFLARE_API_TOKEN", None)
@@ -62,46 +61,41 @@ else:
 DISCORD_WEBHOOK_URL = os.environ.get("DISCORD_WEBHOOK_URL", None)
 
 
-
 WHOAMI_URLS = os.environ.get("WHOAMI_URLS", "http://whoami.obsoletelabs.org:12345").split(",")
 logger.info("Using WHOAMI_URLS: %s", WHOAMI_URLS)
 
 
 logger.info("Retrieving initial IP address...")
-foundIP, initial_ip = get_ip(whoami_urls=WHOAMI_URLS)
-if foundIP:
-    logger.info("Initial IP: %s", initial_ip)
-    OLD_IP = initial_ip
-else:
-    logger.warning("Could not retrieve initial IP address. Will default to 0.0.0.0, will update on first successful check.")
-    OLD_IP = "0.0.0.0" # initialize OLD_IP variable
+
+initial_ip = os.environ.get("INITIAL_IP", get_ip(whoami_urls=WHOAMI_URLS)[1])
+logger.info("Initial IP set to: %s", initial_ip)
+
+OLD_IP = initial_ip
 
 
 # Notifier debugger
 #if DISCORD_WEBHOOK_URL: webhooks.discord(DISCORD_WEBHOOK_URL, f"# WARNING ip DEBUG CHANGED to OTHER DEBUG!", username="IP notifier")
-
-DEBUG_IP = os.environ.get("DEBUG_IP", None)
 
 
 def main():
     """The Main Function"""
     # Main loop
     global OLD_IP # is this needed?
-    if DEBUG_IP:
-        OLD_IP = DEBUG_IP # A special debug ip used to verify ip change logic
 
     while True:
         logger.info("Checking for IP address change...")
 
         #CLOUDFLARE_API_TOKEN = os.environ.get("CLOUDFLARE_API_TOKEN")
         #FILE_PATH = Path("/ip.txt") # location to cache ip addresses
-
-        found, current_ip = get_ip(whoami_urls=WHOAMI_URLS) # grab the current ip address
-        if found:
-            logger.info("Current IP: %s, Old ip: %s", current_ip, OLD_IP)
-        else:
-            logger.warning("Could not retrieve current IP address.")
-
+        found = False
+        while not found:
+            found, current_ip = get_ip(whoami_urls=WHOAMI_URLS) # grab the current ip address
+            if found:
+                logger.info("Current IP: %s, Old ip: %s", current_ip, OLD_IP)
+                break
+            logger.warning(f"Could not retrieve current IP address, waiting {retry_interval} seconds.")
+            sleep(retry_interval)
+        
         try:
             if found and current_ip != OLD_IP: # if ip has changed
 
@@ -124,7 +118,7 @@ def main():
             logger.error("Error updating IP address. %s", e)
 
         logger.info("Sleeping for %s seconds...", sleep_time)
-        sleep(sleep_time)  # wait 5 minutes between checks
+        sleep(sleep_time)  # wait sleeptime between checks
 
 
 

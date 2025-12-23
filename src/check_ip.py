@@ -37,4 +37,5 @@ def get_ip(whoami_urls):
     if ip:
         return (True, ip)
     else:
-        return (False, 0)
+        logger.error("Failed to get IP from all whoami urls")
+        return (False, "0.0.0.0")

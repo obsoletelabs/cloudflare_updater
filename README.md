@@ -15,7 +15,9 @@ This container does not need any ports bound, as it purely sends outgoing traffi
 
 **CLOUDFLARE_API_TOKEN:** This is your cloudflare API token, make sure it can read and write in the zones you want it to update. Note, the container cannot operate if you do not set this.
 
-**INTERVAL_SECONDS**: This is where you can configure how frequently the service will poll your IP. The more frequent the less downtime you will experience, but the harsher on your system the service will be. We reccomend a time between 60-1800 seconds for your checking interval. It defaults to 300 seconds (5 minutes).
+**INTERVAL_SECONDS**: This is where you can configure how frequently the service will poll your IP. The more frequent the less downtime you will experience, but the harsher on your system the service will be. We reccomend a time between 60-1800 seconds for your checking interval. It defaults to 600 seconds (10 minutes).
+
+**RETRY_INTERVAL_SECONDS**: This is where you can figure how often the service will retry if all poll sources fail to respond. This defaults to 10s.
 
 ### Notifications
 
