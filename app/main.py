@@ -1,6 +1,7 @@
 from time import sleep
 import os
 from pathlib import Path
+import requests
 
 import update_ip
 from check_ip import get_ip 
@@ -26,6 +27,13 @@ logger.info(f"Check interval set to {sleep_time} seconds.")
 # Get API token from environment variable
 try:
     API_TOKEN = os.environ.get("API_TOKEN")
+
+    r = requests.get("https://api.cloudflare.com/client/v4/user/tokens/verify", timeout=3, headers="Authorization": f"Bearer {API_TOKEN}").json()
+
+    if data.get("success") is False: # check if api key is invalid
+        logger.error("Token is invalid")
+        logger.error(data.get("errors"))
+        exit(1)
 except:
     #print("API_TOKEN environment variable not set. Exiting.")
     logger.error("API_TOKEN environment variable not set. Exiting.")
