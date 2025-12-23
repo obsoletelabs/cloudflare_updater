@@ -26,8 +26,8 @@ elif LOGGING_LEVEL == "CRITICAL":
     LOG_LEVEL = logging.CRITICAL
 
 else:
-    print("Log level not set defaulting to WARNING")
-    LOG_LEVEL = logging.WARNING
+    print("Log level not set defaulting to INFO")
+    LOG_LEVEL = logging.INFO
 print(f"Logging level set to {LOGGING_LEVEL}")
 
 logging.basicConfig(
