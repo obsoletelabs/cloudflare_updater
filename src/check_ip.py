@@ -1,3 +1,5 @@
+"""A library for checking your current ip address using whoami"""
+
 from sys import stdout
 
 import logging

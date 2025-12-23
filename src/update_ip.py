@@ -1,7 +1,8 @@
-import requests
-
-import logging
+"""A library that uses cloudflare's api to find replace all of the ip addresses"""
 import sys
+import logging
+
+import requests
 
 logging.basicConfig(
     level=logging.INFO,
@@ -21,7 +22,7 @@ def cloudflare(api_token, old_ip, new_ip):
         old_ip (str): The IP address to search for.
         new_ip (str): The new IP address to replace with.
     """
-    
+
     logger.info("Starting Cloudflare DNS update process...")
 
     headers = {
@@ -33,7 +34,7 @@ def cloudflare(api_token, old_ip, new_ip):
         zones = []
         page = 1
         while True:
-            resp = requests.get(f"{BASE_URL}/zones", headers=headers, params={"page": page, "per_page": 50})
+            resp = requests.get(f"{BASE_URL}/zones", headers=headers, params={"page": page, "per_page": 50}, timeout=3)
             if resp.status_code == 403:
                 logger.warning("403 Forbidden: You don't have access to some zones, skipping...")
                 break
@@ -52,10 +53,11 @@ def cloudflare(api_token, old_ip, new_ip):
             resp = requests.get(
                 f"{BASE_URL}/zones/{zone_id}/dns_records",
                 headers=headers,
-                params={"page": page, "per_page": 100, "type": "A"}
+                params={"page": page, "per_page": 100, "type": "A"},
+                timeout=3
             )
             if resp.status_code == 403:
-                logger.warning(f"403 Forbidden: No permission for zone {zone_id}, skipping...")
+                logger.warning("403 Forbidden: No permission for zone %s, skipping...", zone_id)
                 break
             resp.raise_for_status()
             data = resp.json()
@@ -75,20 +77,21 @@ def cloudflare(api_token, old_ip, new_ip):
         }
         try:
             resp = requests.put(
-                f"{BASE_URL}/zones/{zone_id}/dns_records/{record_id}", 
-                headers=headers, 
-                json=payload
+                f"{BASE_URL}/zones/{zone_id}/dns_records/{record_id}",
+                headers=headers,
+                json=payload,
+                timeout=3
             )
             if resp.status_code == 403:
-                logger.warning(f"403 Forbidden: Cannot update record {name} in zone {zone_id}, skipping...")
+                logger.warning("403 Forbidden: Cannot update record %s in zone %s, skipping...", name, zone_id)
                 return
             resp.raise_for_status()
         except requests.RequestException as e:
-            logger.error(f"Error updating record {name}: {e}, payload: {payload}, response: {getattr(resp, 'text', None)}")
+            logger.error("Error updating record %s: %s, payload: %s, response: {getattr(resp, 'text', None)}", name, str(e), payload)
 
 
     zones = get_all_zones()
-    logger.info(f"Found {len(zones)} zones.")
+    logger.info("Found %i zones.", len(zones))
 
     for zone in zones:
         zone_id = zone["id"]
@@ -97,7 +100,7 @@ def cloudflare(api_token, old_ip, new_ip):
 
         for record in records:
             if record["content"] == old_ip:
-                logger.info(f"[{zone_name}] Updating {record['name']} ({old_ip} → {new_ip})")
+                logger.info("[%s] Updating {record['name']} (%s --> %s)", zone_name, old_ip, new_ip)
                 update_dns_record(zone_id, record["id"], record["name"], record["ttl"], record["proxied"])
 
     logger.info("Update complete.")

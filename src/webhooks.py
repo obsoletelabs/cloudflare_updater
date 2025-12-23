@@ -1,3 +1,5 @@
+"""A library for sending notifications via diffrent webhooks"""
+
 import requests
 
 def discord(webhook_url, message_content, username="IP notifier"):

@@ -1,3 +1,5 @@
+"""Main.py what more can i say"""
+
 from time import sleep
 import os
 import logging
@@ -6,20 +8,25 @@ import sys
 import requests
 
 import update_ip
-from check_ip import get_ip 
+from check_ip import get_ip
 import webhooks
 
 
 LOGGING_LEVEL = os.environ.get("LOGGING_LEVEL", None).strip()
 
-if LOGGING_LEVEL == "DEBUG": LOG_LEVEL = logging.DEBUG
-elif LOGGING_LEVEL == "INFO": LOG_LEVEL = logging.INFO
-elif LOGGING_LEVEL == "WARNING": LOG_LEVEL = logging.WARNING
-elif LOGGING_LEVEL == "ERROR": LOG_LEVEL = logging.ERROR
-elif LOGGING_LEVEL == "CRITICAL": LOG_LEVEL = logging.CRITICAL
+if LOGGING_LEVEL == "DEBUG":
+    LOG_LEVEL = logging.DEBUG
+elif LOGGING_LEVEL == "INFO":
+    LOG_LEVEL = logging.INFO
+elif LOGGING_LEVEL == "WARNING":
+    LOG_LEVEL = logging.WARNING
+elif LOGGING_LEVEL == "ERROR":
+    LOG_LEVEL = logging.ERROR
+elif LOGGING_LEVEL == "CRITICAL":
+    LOG_LEVEL = logging.CRITICAL
 
 else:
-    print("Log level not set defaulting to WARNING") 
+    print("Log level not set defaulting to WARNING")
     LOG_LEVEL = logging.WARNING
 print(f"Logging level set to {LOGGING_LEVEL}")
 
@@ -64,10 +71,10 @@ logger.info("Retrieving initial IP address...")
 foundIP, initial_ip = get_ip(whoami_urls=WHOAMI_URLS)
 if foundIP:
     logger.info("Initial IP: %s", initial_ip)
-    old_ip = initial_ip
+    OLD_IP = initial_ip
 else:
     logger.warning("Could not retrieve initial IP address. Will default to 0.0.0.0, will update on first successful check.")
-    old_ip = "0.0.0.0" # initialize old_ip variable
+    OLD_IP = "0.0.0.0" # initialize OLD_IP variable
 
 
 # Notifier debugger
@@ -77,9 +84,11 @@ DEBUG_IP = os.environ.get("DEBUG_IP", None)
 
 
 def main():
+    """The Main Function"""
     # Main loop
-    global old_ip # is this needed?
-    if DEBUG_IP: old_ip = DEBUG_IP # A special debug ip used to verify ip change logic
+    global OLD_IP # is this needed?
+    if DEBUG_IP:
+        OLD_IP = DEBUG_IP # A special debug ip used to verify ip change logic
 
     while True:
         logger.info("Checking for IP address change...")
@@ -89,28 +98,27 @@ def main():
 
         found, current_ip = get_ip(whoami_urls=WHOAMI_URLS) # grab the current ip address
         if found:
-            logger.info("Current IP: %s", current_ip)
+            logger.info("Current IP: %s, Old ip: %s", current_ip, OLD_IP)
         else:
             logger.warning("Could not retrieve current IP address.")
 
         try:
-            logger.debug("Old IP: %s", old_ip)
-            if found and current_ip != old_ip: # if ip has changed
+            if found and current_ip != OLD_IP: # if ip has changed
 
                 # Ip change detected
-                logger.info("IP change detected: %s --> %s", old_ip, current_ip)
+                logger.info("IP change detected: %s --> %s", OLD_IP, current_ip)
 
                 if DISCORD_WEBHOOK_URL:
-                    webhooks.discord(DISCORD_WEBHOOK_URL, f"# WARNING ip {old_ip} CHANGED to {current_ip}!", username="IP notifier")
+                    webhooks.discord(DISCORD_WEBHOOK_URL, f"# WARNING ip {OLD_IP} CHANGED to {current_ip}!", username="IP notifier")
 
 
                 try:
                     logger.info("Updating IP address via Cloudflare API...")
-                    update_ip.cloudflare(CLOUDFLARE_API_TOKEN, old_ip, current_ip)
+                    update_ip.cloudflare(CLOUDFLARE_API_TOKEN, OLD_IP, current_ip)
                 except Exception as e:
                     logger.error("Error updating IP address via Cloudflare API: %s", e)
 
-                old_ip = current_ip
+                OLD_IP = current_ip
                 logger.info("Updated IP address to: %s", current_ip)
         except Exception as e:
             logger.error("Error updating IP address. %s", e)
@@ -121,6 +129,6 @@ def main():
 
 
 
-if __name__ == "__main__": 
+if __name__ == "__main__":
     logger.info("Service running")
     main()
