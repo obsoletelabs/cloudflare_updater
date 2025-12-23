@@ -1,13 +1,12 @@
 import requests
 
-def discord(webhook_url, message_content, username="IP notifier"):
-    """Discord webhook sender"""
-    message = {
+def discord(webhookUrl, MessageContent, username="IP notifier"):
+    Message = {
     "username" : username,
-    "content" : message_content
+    "content" : MessageContent
     }
 
-    result = requests.post(webhook_url, json = message, timeout=3)
+    result = requests.post(webhookUrl, json = MessageContent)
 
     try:
         result.raise_for_status()
@@ -15,4 +14,5 @@ def discord(webhook_url, message_content, username="IP notifier"):
         print(err)
     else:
         print(f"Payload delivered successfully, code {result.status_code}.")
-        return
+        return(result.status_code)
+

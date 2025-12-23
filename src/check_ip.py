@@ -1,4 +1,4 @@
-import sys
+from sys import stdout
 
 import logging
 
@@ -7,19 +7,17 @@ import requests
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
-    handlers=[logging.StreamHandler(sys.stdout)]
+    handlers=[logging.StreamHandler(stdout)]
 )
 logger = logging.getLogger(__name__)
 
-debug = False
 
+def get_ip(whoami_urls):
+    """takes a list of urls to whoami websites and uses them to find the current ip address"""
 
-
-def get_ip(WHOAMI_URLS):
-
-    for url in WHOAMI_URLS: # Attempts to use each url fails over to the next one
+    for url in whoami_urls: # Attempts to use each url fails over to the next one
         try:
-            logger.info(f"Checking IP via {url}")
+            logger.info("Checking IP via %s", url)
             result = requests.get(url, timeout=3)
             result.raise_for_status()
             text = result.text.strip() # clean up the text
@@ -27,11 +25,11 @@ def get_ip(WHOAMI_URLS):
             for line in text.split("\n"):
                 if "RemoteAddr" in str(line):
                     line = line.strip("RemoteAddr: ")
-                    ip, *port = line.split(":")
+                    ip = line.split(":")[0]
 
                     logger.debug(ip)
             break
-        
+
         except Exception:
             continue # failover to the next url
     if ip:
