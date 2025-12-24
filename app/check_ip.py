@@ -6,13 +6,7 @@ import logging
 
 import requests
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s",
-    handlers=[logging.StreamHandler(stdout)]
-)
 logger = logging.getLogger(__name__)
-
 
 def get_ip(whoami_urls):
     """takes a list of urls to whoami websites and uses them to find the current ip address"""

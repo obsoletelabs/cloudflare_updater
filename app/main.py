@@ -33,14 +33,14 @@ else:
     LOGGING_LEVEL = "INFO"
 
 logging.basicConfig(
-    level=LOG_LEVEL,
+    level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
     handlers=[logging.StreamHandler(sys.stdout)]
 )
 logger = logging.getLogger(__name__)
 #TODO this should not be logging as critical
-logger.critical("Logging level set to %s", LOGGING_LEVEL) # log the logging level as critical to ensure logged.
-
+logger.info("Logging level set to %s", LOGGING_LEVEL) # log the logging level as critical to ensure logged.
+logger.setLevel(LOG_LEVEL)
 
 logger.info("Service starting up...") # log startup
 
@@ -145,7 +145,7 @@ def main():
         if found and current_ip != OLD_IP: # if ip has changed
 
             # Ip change detected
-            logger.info("IP change detected: %s --> %s", OLD_IP, current_ip)
+            logger.warning("IP change detected: %s --> %s", OLD_IP, current_ip)
             # Send notifications if enabled
             #if EXTERNAL_NOTIFIERS:
             notify_ip_change(OLD_IP, current_ip)
