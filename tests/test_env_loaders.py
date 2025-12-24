@@ -1,4 +1,4 @@
-from app.utilities.env_loaders import (
+from src.cloudflare_updater.utilities.env_loaders import (
     get_cloudflare_api_token,
     get_whoami_urls,
 )
@@ -16,7 +16,7 @@ def test_get_cloudflare_api_token_valid(mocker, monkeypatch):
     mock_resp = mocker.Mock()
     mock_resp.json.return_value = {"success": True}
 
-    mocker.patch("app.utilities.env_loaders.requests.get", return_value=mock_resp)
+    mocker.patch("src.cloudflare_updater.utilities.env_loaders.requests.get", return_value=mock_resp)
 
     ok, token = get_cloudflare_api_token()
     assert ok is True
@@ -31,7 +31,7 @@ def test_get_cloudflare_api_token_invalid(mocker, monkeypatch, caplog):
     mock_resp = mocker.Mock()
     mock_resp.json.return_value = {"success": False, "errors": ["bad token"]}
 
-    mocker.patch("app.utilities.env_loaders.requests.get", return_value=mock_resp)
+    mocker.patch("src.cloudflare_updater.utilities.env_loaders.requests.get", return_value=mock_resp)
 
     ok, token = get_cloudflare_api_token()
     assert ok is False
