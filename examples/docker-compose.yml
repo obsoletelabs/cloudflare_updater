@@ -11,3 +11,7 @@ services:
       - CHECK_INTERVAL_SECONDS=600 # Delay between ip checks
       - RETRY_INTERVAL_SECONDS=10 # Delay between ip check retries
       - LOG_LEVEL=INFO # Container logging level
+    volumes:
+      - config:/config
+volumes:
+  config:

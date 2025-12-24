@@ -3,16 +3,13 @@
 
 from time import sleep
 import os
-import logging
-import sys
-
-from colorlog import ColoredFormatter
 
 import update_ip
 from check_ip import get_ip
 
 from utilities.send_webhooks import send as send_webhooks
 from utilities import env_loaders
+from setup_logger import setup_logger
 
 ################################
 #           LOGGING            #
@@ -22,71 +19,7 @@ DEBUG_LOGGER_FORMAT = False # should be disabled for production
 # Set up logging, default to INFO level
 LOGGING_LEVEL = os.environ.get("LOG_LEVEL", "INFO").strip().upper()
 
-if LOGGING_LEVEL == "DEBUG":
-    LOG_LEVEL = logging.DEBUG
-elif LOGGING_LEVEL == "WARNING":
-    LOG_LEVEL = logging.WARNING
-elif LOGGING_LEVEL == "ERROR":
-    LOG_LEVEL = logging.ERROR
-elif LOGGING_LEVEL == "CRITICAL":
-    LOG_LEVEL = logging.CRITICAL
-else:
-    LOG_LEVEL = logging.INFO
-    LOGGING_LEVEL = "INFO"
-
-
-# logger setup
-
-formatter = ColoredFormatter(
-    "%(log_color)s%(asctime)s [%(levelname)s]%(reset)s %(message_log_color)s%(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-    log_colors={
-        "DEBUG":    "light_black",        # color for the prefix
-        "INFO":     "reset",
-        "WARNING":  "yellow",
-        "ERROR":    "red",
-        "CRITICAL": "bold_red",
-    },
-    secondary_log_colors={
-        "message": {
-            "DEBUG": "light_black",   # <-- gray message text
-            "INFO": "reset",
-            "WARNING": "yellow",
-            "ERROR": "yellow",
-            "CRITICAL": "yellow",
-        }
-    }
-)
-
-handler = logging.StreamHandler(sys.stdout)
-handler.setFormatter(formatter)
-
-logging.basicConfig(
-    level=logging.DEBUG,
-    handlers=[handler]
-)
-
-logger = logging.getLogger(__name__)
-
-# for testing formats
-if DEBUG_LOGGER_FORMAT:
-    logger.debug("debug")
-    logger.info("info")
-    logger.warning("warning")
-    logger.error("error")
-    logger.critical("critical")
-
-
-
-# finish up
-logger.info("Logging level set to %s", LOGGING_LEVEL) # log the logging level as critical to ensure logged.
-logger.setLevel(LOG_LEVEL)
-
-logger.info("Service starting up...") # log startup
-
-
-
-
+logger = setup_logger(LOGGING_LEVEL, DEBUG_LOGGER_FORMAT)
 
 
 logger.info("""
