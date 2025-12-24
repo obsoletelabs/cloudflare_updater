@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cloudflare-updater"
+version = "0.1.0"
+description = "Automatically updates Cloudflare DNS records with your current IP."
+readme = "README.md"
+requires-python = ">=3.12"
+license = { file = "LICENSE" }
+authors = [
+    { name = "Your Name" }
+]
+
+# Optional: if you want to install your package with pip
+dependencies = [
+    "requests",
+    "pyyaml",
+    "colorlog"
+]
+
+[tool.ruff]
+extend = "config/ruff.toml"
+
+[tool.mypy]
+config_file = "config/mypy.ini"
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-q"
+testpaths = ["tests"]
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -9,6 +9,14 @@
       "problemMatcher": []
     },
 
+    {
+      "label": "docker: run",
+      "type": "shell",
+      "command": "docker compose -f docker/docker-compose.yml up",
+      "group": "build",
+      "problemMatcher": []
+    },
+
     { "label": "Lint Entire Project", "type": "shell", "command": "pylint app/", "problemMatcher": [] }
     
   ]
