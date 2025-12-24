@@ -65,9 +65,12 @@ else:
 
 # Get WHOAMI_URLS from environment variable or use default
 WHOAMI_URLS = os.environ.get("WHOAMI_URLS", "").split(",")
+logger.debug("Initial WHOAMI_URLS: %s", WHOAMI_URLS)
 if os.environ.get("OVERRIDE_OBSOLETE_WHOAMI", "false").lower() != "false":
+    logger.debug("Obsolete WHOAMI URL appended.")
     WHOAMI_URLS.append("http://whoami.obsoletelabs.org:12345/") # default fallback
-if not WHOAMI_URLS or WHOAMI_URLS == [""]:
+elif not WHOAMI_URLS or WHOAMI_URLS == [""]:
+    logger.debug(not WHOAMI_URLS)
     logger.error("WHOAMI_URLS environment variable empty and obsolete fallback disabled. Exiting.")
     exit(1)
 logger.info("Using WHOAMI_URLS: %s", WHOAMI_URLS)
