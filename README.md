@@ -39,22 +39,4 @@ We dont provide help to our users. We don't really care if you use us or not. We
 
 ## well fine here take this compose file figure it out your self
 
-```yaml
-services:
-  obsoletelabs_cloudflare_updater:
-    image: ghcr.io/obsoletelabs/cloudflare_updater:main
-    environment:
-      # Required:
-      - CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN}
-
-      # Optional:
-      - WHOAMI_URLS=http://whoami.obsoletelabs.org:12345/ # Comma list of whoami urls
-      - OVERRIDE_OBSOLETE_WHOAMI=true # Set this to remove obsolete whoami
-      - CHECK_INTERVAL_SECONDS=600 # Delay between ip checks
-      - RETRY_INTERVAL_SECONDS=10 # Delay between ip check retries
-      - LOG_LEVEL=INFO # Container logging level
-
-      # External notification sources:
-      - DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/1234567890
-
-```
+➡️ [`docker-compose.yml`](./examples/docker-compose.yml)
