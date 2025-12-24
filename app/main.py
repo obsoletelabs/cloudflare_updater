@@ -82,6 +82,15 @@ else:
 if WHOAMI_URLS == [""]:
     logger.error("WHOAMI_URLS environment variable empty and obsolete fallback disabled. Exiting.")
     exit(1)
+
+# Validate WHOAMI_URLS
+for URL in WHOAMI_URLS:
+    if URL == "":
+        WHOAMI_URLS.remove(URL)
+    elif not URL.startswith("http://") and not URL.startswith("https://"):
+        logger.warning("Invalid WHOAMI_URL detected and removed: %s", URL)
+        WHOAMI_URLS.remove(URL)
+    
 logger.info("Using WHOAMI_URLS: %s", WHOAMI_URLS)
 
 
