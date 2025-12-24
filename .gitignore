@@ -1,5 +1,5 @@
 __pycache__
-/config
+/app_config
 .mypy_cache
 .pytest_cache
 .ruff_cache
