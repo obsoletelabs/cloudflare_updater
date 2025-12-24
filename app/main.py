@@ -90,7 +90,7 @@ for URL in WHOAMI_URLS:
     elif not URL.startswith("http://") and not URL.startswith("https://"):
         logger.warning("Invalid WHOAMI_URL detected and removed: %s", URL)
         WHOAMI_URLS.remove(URL)
-    
+
 logger.info("Using WHOAMI_URLS: %s", WHOAMI_URLS)
 
 
@@ -140,8 +140,6 @@ def main():
             sleep(retry_interval)
 
         # Compare with OLD_IP and update if changed
-        #TODO this try except block is hiding errors for a huge chunk of the code base
-        #try:
         if found and current_ip != OLD_IP: # if ip has changed
 
             # Ip change detected
@@ -159,9 +157,6 @@ def main():
 
             OLD_IP = current_ip # update OLD_IP
             logger.info("Updated IP address to: %s", current_ip)
-        # not sure what can go wrong but we could specificy specific errors to capture
-        #except Exception as e:
-        #   logger.error("Error updating IP address. %s", e)
 
         logger.info("Sleeping for %s seconds...", sleep_time)
         sleep(sleep_time)  # wait sleeptime between checks

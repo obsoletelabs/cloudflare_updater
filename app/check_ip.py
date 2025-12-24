@@ -1,10 +1,9 @@
 """A library for checking your current ip address using whoami"""
 
-from sys import stdout
-
 import logging
 
 import requests
+from requests.exceptions import RequestException
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +25,7 @@ def get_ip(whoami_urls):
                     logger.debug(ip)
             break
 
-        except Exception:
+        except RequestException:
             continue # failover to the next url
     if ip:
         return (True, ip)
