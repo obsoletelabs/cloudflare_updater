@@ -66,12 +66,12 @@ logger.info("Cloudflare API token validated.")
 
 # Get WHOAMI_URLS from environment variable or use default
 WHOAMI_URLS = os.environ.get("WHOAMI_URLS", "").split(",")
-logger.info("Initial WHOAMI_URLS: %s", WHOAMI_URLS)
-if os.environ.get("OVERRIDE_OBSOLETE_WHOAMI", "false").lower() != "false":
-    logger.info("Obsolete WHOAMI URL appended.")
+if os.environ.get("OVERRIDE_OBSOLETE_WHOAMI", "false").lower() == "false":
     WHOAMI_URLS.append("http://whoami.obsoletelabs.org:12345/") # default fallback
-elif not WHOAMI_URLS or WHOAMI_URLS == [""]:
-    logger.info(not WHOAMI_URLS)
+else:
+    logger.info("Obsolete WHOAMI URL NOT appended due to OVERRIDE_OBSOLETE_WHOAMI setting.")
+
+if WHOAMI_URLS == [""]:
     logger.error("WHOAMI_URLS environment variable empty and obsolete fallback disabled. Exiting.")
     exit(1)
 logger.info("Using WHOAMI_URLS: %s", WHOAMI_URLS)
