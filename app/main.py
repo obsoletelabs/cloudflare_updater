@@ -91,13 +91,11 @@ OLD_IP = initial_ip
 #           Notify             #
 ################################
 
-EXTERNAL_NOTIFIERS = False
+#EXTERNAL_NOTIFIERS = False
 SMTP_NOTIFIER_ENABLED = os.environ.get("SMTP_NOTIFIER_ENABLED", "false").lower() == "true"
 
 def notify_ip_change(old_ip, new_ip):
     """Notify IP change via enabled notifiers"""
-    #if DISCORD_WEBHOOK_URL:
-    #    webhooks.discord(DISCORD_WEBHOOK_URL, , username="IP notifier")
     logger.debug("Sending webhooks")
     send_webhooks(f"WARNING ip {old_ip} CHANGED to {new_ip}!")
     logger.debug("Done sending webhooks")
@@ -113,7 +111,7 @@ def main():
     """The Main Function"""
     # Main loop
     global OLD_IP
-    global EXTERNAL_NOTIFIERS
+    #global EXTERNAL_NOTIFIERS
 
     while True:
         logger.info("Checking for IP address change...")
