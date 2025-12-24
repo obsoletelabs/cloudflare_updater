@@ -1,0 +1,29 @@
+discord:
+  enabled: false
+  webhooks:
+    - username: "0"
+      url: "URL HERE"
+      prefix_header: 0
+      bold: false
+    - username: "1"
+      url: "URL HERE"
+      prefix_header: 1
+    - username: "2"
+      url: "URL HERE"
+      prefix_header: 2
+      ping: "@<717312120068374538>"
+    - username: "3"
+      url: "URL HERE"
+      prefix_header: 3
+      ping: "@here"
+
+    - username: "bold"
+      url: "URL HERE"
+      prefix_header: 0
+      bold: true
+#      ping: "@everyone"
+
+smptp:
+  enabled: false
+  #TODO add the rest of the smptp stuff
+  

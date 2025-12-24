@@ -22,6 +22,7 @@ def cloudflare(api_token, old_ip, new_ip):
         old_ip (str): The IP address to search for.
         new_ip (str): The new IP address to replace with.
     """
+    if new_ip == "0.0.0.0": raise ValueError("CRITICAL ATTEMPTED TO SET DOMAINS TO 0.0.0.0")# just incase
 
     logger.info("Starting Cloudflare DNS update process...")
 
