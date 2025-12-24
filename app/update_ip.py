@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 
 BASE_URL = "https://api.cloudflare.com/client/v4"
 
-def cloudflare(api_token, old_ip, new_ip):
+def cloudflare(api_token: str, old_ip: str, new_ip: str):
     """
     Replaces all DNS A records pointing to `old_ip` with `new_ip` across all Cloudflare zones.
 
@@ -15,7 +15,7 @@ def cloudflare(api_token, old_ip, new_ip):
         old_ip (str): The IP address to search for.
         new_ip (str): The new IP address to replace with.
     """
-    if new_ip == "0.0.0.0":
+    if (new_ip == "0.0.0.0") or (new_ip is None):
         raise ValueError("CRITICAL ATTEMPTED TO SET DOMAINS TO 0.0.0.0")# just incase
 
     logger.info("Starting Cloudflare DNS update process...")
@@ -41,7 +41,7 @@ def cloudflare(api_token, old_ip, new_ip):
             page += 1
         return zones
 
-    def get_dns_records(zone_id):
+    def get_dns_records(zone_id: str):
         records = []
         page = 1
         while True:
@@ -62,13 +62,13 @@ def cloudflare(api_token, old_ip, new_ip):
             page += 1
         return records
 
-    def update_dns_record(zone_id, record_id, name, ttl, proxied):
+    def update_dns_record(zone_id: str, record_id: str, name: str, ttl: int, proxied: bool):
         payload = {
             "type": "A",
             "name": name.strip(),
             "content": new_ip,
             "ttl": ttl if ttl >= 120 else 1,  # fallback to automatic if too low
-            "proxied": bool(proxied)  # ensure it's a proper boolean
+            "proxied": proxied  # ensure it's a proper boolean
         }
         try:
             resp = requests.put(
@@ -96,6 +96,6 @@ def cloudflare(api_token, old_ip, new_ip):
         for record in records:
             if record["content"] == old_ip:
                 logger.info(f"[%s] Updating {record['name']} (%s --> %s)", zone_name, old_ip, new_ip)
-                update_dns_record(zone_id, record["id"], record["name"], record["ttl"], record["proxied"])
+                update_dns_record(zone_id, record["id"], record["name"], record["ttl"], bool(record["proxied"]))
 
     logger.info("Update complete.")

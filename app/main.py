@@ -88,8 +88,8 @@ def main():
         # Get current IP address with retries
         found = False
         while not found:
-            found, current_ip = get_ip(whoami_urls=WHOAMI_URLS) # grab the current ip address
-            if found:
+            current_ip = get_ip(whoami_urls=WHOAMI_URLS) # grab the current ip address
+            if current_ip is None:
                 logger.info("Current IP: %s", current_ip)
                 break
             logger.warning("Could not retrieve current IP address, waiting %i seconds.", retry_interval)

@@ -7,7 +7,7 @@ from requests.exceptions import RequestException
 
 logger = logging.getLogger(__name__)
 
-def get_ip(whoami_urls):
+def get_ip(whoami_urls: list[str]) -> str | None:
     """takes a list of urls to whoami websites and uses them to find the current ip address"""
 
     for url in whoami_urls: # Attempts to use each url fails over to the next one
@@ -28,7 +28,7 @@ def get_ip(whoami_urls):
         except RequestException:
             continue # failover to the next url
     if ip:
-        return (True, ip)
+        return ip
     else:
         logger.warning("Failed to get IP from all whoami urls")
-        return (False, "0.0.0.0")
+        return None

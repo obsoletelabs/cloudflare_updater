@@ -24,6 +24,7 @@ def get_cloudflare_api_token():
         return(False, None)
     logger.info("Cloudflare API token validated.")
 
+
 def get_whoami_urls():
     """Get WHOAMI_URLS from environment variable or use default"""
 

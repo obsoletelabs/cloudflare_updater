@@ -5,7 +5,7 @@ import sys
 
 from colorlog import ColoredFormatter
 
-def setup_logger(logging_level, debug_logger_format):
+def setup_logger(logging_level: str, debug_logger_format: bool) -> logging.Logger:
     """Creates and returns the logger"""
     if logging_level == "DEBUG":
         log_level = logging.DEBUG
