@@ -1,4 +1,5 @@
 [![Build](https://github.com/obsoletelabs/cloudflare_updater/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/obsoletelabs/cloudflare_updater/actions/workflows/docker-publish.yml)
+[![Run Pytests](https://github.com/obsoletelabs/cloudflare_updater/actions/workflows/tests.yml/badge.svg)](https://github.com/obsoletelabs/cloudflare_updater/actions/workflows/tests.yml)
 # Obsoletelabs Cloudflare Updater
 
 Most of us have dynamicly assigned IP addresses by our ISPs, especially with ipv4, and this can make self hosting services a pain. 
