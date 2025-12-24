@@ -7,7 +7,7 @@ services:
     restart: unless-stopped
 
     env_file:
-      - .env
+      - config/.env
     
     environment:
       #- WHOAMI_URLS=${WHOAMI_URLS}
@@ -16,5 +16,5 @@ services:
 
     # Remove for production this is only for development!
     volumes:
-      - ./app:/app
+      - ./src/cloudflare_updater:/app
       - ./config:/config

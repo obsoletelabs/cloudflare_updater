@@ -19,7 +19,7 @@ COPY requirements.txt /app/
 RUN pip install --upgrade pip \ 
     && pip install -r requirements.txt
 
-COPY /app/ /app/
+COPY /src/cloudflare_updater/ /app/
 
 
 # Run entrypoint
