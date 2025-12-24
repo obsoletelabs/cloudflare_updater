@@ -1,6 +1,6 @@
 # ruff.toml
 line-length = 150
-target-version = "py3"
+target-version = "py312"
 
 [lint]
 select = ["E", "F", "W", "I"]  # Errors, warnings, import sorting
