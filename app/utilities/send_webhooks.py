@@ -11,7 +11,12 @@ logger = logging.getLogger(__name__)
 DEFAULT_CONFIG = {
     "discord": {
         "enabled": False,
-        "webhooks": []
+        "webhooks": [{
+            "username": "IP change notifier",
+            "url": "URL HERE",
+            "prefix_header": 0,
+            "bold": False
+        }]
     }
 }
 
