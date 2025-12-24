@@ -86,11 +86,12 @@ def main():
         logger.info("Checking for IP address change...")
 
         # Get current IP address with retries
-        found = False
+        found = False #TODO iceman can you see if this is actually needed anymore?
         while not found:
             current_ip = get_ip(whoami_urls=WHOAMI_URLS) # grab the current ip address
-            if current_ip is None:
+            if current_ip is not None:
                 logger.info("Current IP: %s", current_ip)
+                found = True
                 break
             logger.warning("Could not retrieve current IP address, waiting %i seconds.", retry_interval)
             sleep(retry_interval)

@@ -1,0 +1,11 @@
+# ruff.toml
+line-length = 150
+target-version = "py3"
+
+[lint]
+select = ["E", "F", "W", "I"]  # Errors, warnings, import sorting
+ignore = []
+
+[format]
+quote-style = "double"
+indent-style = "space"

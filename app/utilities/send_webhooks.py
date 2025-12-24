@@ -1,62 +1,99 @@
-"""some code to load webhook shit"""
 import os
 import logging
+from typing import Any, Dict, List
 import yaml
 import notify.webhooks as webhooks
 
-
-CONFIG_PATH = "/config/webhooks.yml"
 logger = logging.getLogger(__name__)
 
-DEFAULT_CONFIG = {
+CONFIG_PATH = "/config/webhooks.yml"
+
+DEFAULT_CONFIG: Dict[str, Any] = {
     "discord": {
         "enabled": False,
-        "webhooks": [{
-            "username": "IP change notifier",
-            "url": "URL HERE",
-            "prefix_header": 0,
-            "bold": False
-        }]
+        "webhooks": [
+            {
+                "username": "IP change notifier",
+                "url": "URL HERE",
+                "prefix_header": 0,
+                "bold": False,
+                "ping": "",
+            }
+        ],
     }
 }
 
 
-def load_config():
-    """t"""
-    # Ensure file exists
+def load_config() -> Dict[str, Any]:
+    """Load webhook configuration from YAML, creating defaults if missing."""
+
+    # Ensure directory exists
+    os.makedirs(os.path.dirname(CONFIG_PATH), exist_ok=True)
+
+    # Create file if missing
     if not os.path.exists(CONFIG_PATH):
-        os.makedirs(os.path.dirname(CONFIG_PATH), exist_ok=True)
         with open(CONFIG_PATH, "w", encoding="utf-8") as f:
             yaml.safe_dump(DEFAULT_CONFIG, f)
 
-    # Load YAML (may be None)
-    with open(CONFIG_PATH, "r", encoding="utf-8") as f:
-        config = yaml.safe_load(f) or {}
+    # Load YAML safely
+    try:
+        with open(CONFIG_PATH, "r", encoding="utf-8") as f:
+            config = yaml.safe_load(f) or {}
+    except Exception as err:
+        logger.error("Failed to load webhook config, using defaults.")
+        logger.error(err)
+        return DEFAULT_CONFIG.copy()
 
-    # Merge missing pieces
+    # Deep merge discord config
     merged = DEFAULT_CONFIG.copy()
-    merged["discord"].update(config.get("discord", {}))
+    merged["discord"] = DEFAULT_CONFIG["discord"].copy()
+
+    user_discord = config.get("discord", {})
+    merged["discord"].update(user_discord)
+
+    # Ensure webhooks list exists and is valid
+    if not isinstance(merged["discord"].get("webhooks"), list):
+        merged["discord"]["webhooks"] = DEFAULT_CONFIG["discord"]["webhooks"]
+
     return merged
 
 
-CONFIG = load_config()
+def send(msg: str = "default") -> None:
+    """Send a message to all configured webhooks."""
 
-def send(msg: str="default"):
-    """Send msg to all webhooks configured"""
-    # Discord
-    #try: not sure if we need this or not
-    if CONFIG.get("discord", {"enabled":False})["enabled"]:
-        logger.debug("Discord webhooks enabled sending now.")
-        for webhook in CONFIG["discord"].get("webhooks", []):
+    config = load_config()
+    discord_cfg = config.get("discord", {})
+
+    if not discord_cfg.get("enabled", False):
+        return
+
+    logger.debug("Discord webhooks enabled, sending now.")
+
+    webhooks_list: List[Dict[str, Any]] = discord_cfg.get("webhooks", [])
+
+    for webhook in webhooks_list:
+        try:
             msg_discord = msg
 
+            # Bold formatting
             if webhook.get("bold", False):
-                msg_discord = "**" + msg_discord + "**"
-            if webhook.get("prefix_header", 0) > 0:
-                msg_discord = ("#" * webhook["prefix_header"]) + " " + msg_discord
-            msg_discord = msg_discord + webhook.get("ping", "")
+                msg_discord = f"**{msg_discord}**"
 
-            webhooks.discord(webhook["url"], msg_discord, username=webhook["username"])
-    #except Exception as err:
-    #    logger.warning("Failed to load discord webhooks")
-    #    logger.warning(err)
+            # Prefix header (### etc.)
+            prefix = webhook.get("prefix_header", 0)
+            if isinstance(prefix, int) and prefix > 0:
+                msg_discord = f"{'#' * prefix} {msg_discord}"
+
+            # Optional ping
+            msg_discord += webhook.get("ping", "")
+
+            # Send webhook
+            webhooks.discord(
+                webhook["url"],
+                msg_discord,
+                username=webhook.get("username", "Notifier"),
+            )
+
+        except Exception as err:
+            logger.warning("Failed to send Discord webhook")
+            logger.warning(err)
