@@ -3,7 +3,7 @@ services:
     build:
       dockerfile: Dockerfile
     #image: my-python-app
-    container_name: my-python-app
+    container_name: dev
     restart: unless-stopped
 
     env_file:
