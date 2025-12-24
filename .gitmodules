@@ -1,0 +1,3 @@
+[submodule "app/notify"]
+	path = app/notify
+	url = https://github.com/obsoletelabs/notify
