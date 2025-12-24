@@ -11,7 +11,7 @@ import requests
 import update_ip
 from check_ip import get_ip
 
-import notify.webhooks as webhooks
+from utilities.send_webhooks import send as send_webhooks
 
 # Set up logging, default to INFO level
 LOGGING_LEVEL = os.environ.get("LOG_LEVEL", "INFO").strip().upper()
@@ -81,23 +81,16 @@ OLD_IP = initial_ip
 # NOTIFIERS!!!
 EXTERNAL_NOTIFIERS = False
 
-DISCORD_WEBHOOK_URL = os.environ.get("DISCORD_WEBHOOK_URL", False)
 SMTP_NOTIFIER_ENABLED = os.environ.get("SMTP_NOTIFIER_ENABLED", "false").lower() == "true"
-
-if DISCORD_WEBHOOK_URL:
-    EXTERNAL_NOTIFIERS = True
-    logger.info("Discord webhook notifier enabled.")
-elif SMTP_NOTIFIER_ENABLED:
-    EXTERNAL_NOTIFIERS = True
-    logger.info("SMTP email notifier enabled.")
-else:
-    logger.info("No external notifiers enabled.")
 
 
 def notify_ip_change(old_ip, new_ip):
     """Notify IP change via enabled notifiers"""
-    if DISCORD_WEBHOOK_URL:
-        webhooks.discord(DISCORD_WEBHOOK_URL, f"# WARNING ip {old_ip} CHANGED to {new_ip}!", username="IP notifier")
+    #if DISCORD_WEBHOOK_URL:
+    #    webhooks.discord(DISCORD_WEBHOOK_URL, , username="IP notifier")
+    logger.debug("Sending webhooks")
+    send_webhooks(f"WARNING ip {old_ip} CHANGED to {new_ip}!")
+    logger.debug("Done sending webhooks")
     # Add other notifiers here as needed
 
 
@@ -125,26 +118,27 @@ def main():
             sleep(retry_interval)
 
         # Compare with OLD_IP and update if changed
-        try:
-            if found and current_ip != OLD_IP: # if ip has changed
+        # this try except block is hiding errors for a huge chunk of the code base
+        #try:
+        if found and current_ip != OLD_IP: # if ip has changed
 
-                # Ip change detected
-                logger.info("IP change detected: %s --> %s", OLD_IP, current_ip)
-                # Send notifications if enabled
-                if EXTERNAL_NOTIFIERS:
-                    notify_ip_change(OLD_IP, current_ip)
+            # Ip change detected
+            logger.info("IP change detected: %s --> %s", OLD_IP, current_ip)
+            # Send notifications if enabled
+            #if EXTERNAL_NOTIFIERS:
+            notify_ip_change(OLD_IP, current_ip)
 
-                # Update via Cloudflare API
-                try:
-                    logger.info("Updating IP address via Cloudflare API...")
-                    update_ip.cloudflare(CLOUDFLARE_API_TOKEN, OLD_IP, current_ip)
-                except Exception as e:
-                    logger.error("Error updating IP address via Cloudflare API: %s", e)
+            # Update via Cloudflare API
+            try:
+                logger.info("Updating IP address via Cloudflare API...")
+                update_ip.cloudflare(CLOUDFLARE_API_TOKEN, OLD_IP, current_ip)
+            except Exception as e:
+                logger.error("Error updating IP address via Cloudflare API: %s", e)
 
-                OLD_IP = current_ip # update OLD_IP
-                logger.info("Updated IP address to: %s", current_ip)
-        except Exception as e:
-            logger.error("Error updating IP address. %s", e)
+            OLD_IP = current_ip # update OLD_IP
+            logger.info("Updated IP address to: %s", current_ip)
+        #except Exception as e:
+        #   logger.error("Error updating IP address. %s", e)
 
         logger.info("Sleeping for %s seconds...", sleep_time)
         sleep(sleep_time)  # wait sleeptime between checks
