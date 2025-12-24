@@ -1,9 +1,7 @@
-import pytest
 from app.utilities.env_loaders import (
     get_cloudflare_api_token,
     get_whoami_urls,
 )
-
 
 # ---------------------------------------------------------
 # Tests for get_cloudflare_api_token()

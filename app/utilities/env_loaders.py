@@ -2,6 +2,7 @@
 
 import logging
 from os import environ
+
 import requests
 
 logger = logging.getLogger(__name__)
@@ -12,7 +13,8 @@ def get_cloudflare_api_token():
 
     cloudflare_api_token = environ.get("CLOUDFLARE_API_TOKEN", None)
     if cloudflare_api_token:
-        r = requests.get("https://api.cloudflare.com/client/v4/user/tokens/verify", timeout=3, headers={"Authorization": f"Bearer {cloudflare_api_token}"}).json()
+        r = requests.get("https://api.cloudflare.com/client/v4/user/tokens/verify",
+            timeout=3, headers={"Authorization": f"Bearer {cloudflare_api_token}"}).json()
 
         if r.get("success") is False: # check if api key is invalid
             logger.error("Cloudflare API token is invalid, please double check and try again. Exiting.")

@@ -1,6 +1,7 @@
 # tests/test_whoami.py
 from app.check_ip import get_ip
 
+
 def test_get_current_ip_success(mocker):
     """Test ip_get logic"""
     mock_resp = mocker.Mock()

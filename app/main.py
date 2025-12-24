@@ -1,15 +1,14 @@
 """Main.py what more can i say"""
 # pylint: disable=global-statement
 
-from time import sleep
 import os
+from time import sleep
 
 import update_ip
 from check_ip import get_ip
-
-from utilities.send_webhooks import send as send_webhooks
-from utilities import env_loaders
 from setup_logger import setup_logger
+from utilities import env_loaders
+from utilities.send_webhooks import send as send_webhooks
 
 ################################
 #           LOGGING            #
