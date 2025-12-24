@@ -14,7 +14,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy only requirements first (better caching) 
-COPY requirements.txt /app/
+COPY /requirements.txt /app/
 # Install Python deps (cached unless requirements.txt changes) 
 RUN pip install --upgrade pip \ 
     && pip install -r requirements.txt

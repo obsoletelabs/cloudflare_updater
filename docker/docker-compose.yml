@@ -1,13 +1,13 @@
 services:
   app:
     build:
-      dockerfile: Dockerfile
+      dockerfile: docker/Dockerfile
     #image: my-python-app
     container_name: dev
     restart: unless-stopped
 
     env_file:
-      - app_config/.env
+      - ./app_config/.env
     
     environment:
       #- WHOAMI_URLS=${WHOAMI_URLS}
