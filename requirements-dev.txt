@@ -2,3 +2,5 @@ pytest
 pytest-mock
 ruff
 mypy
+types-requests
+types-PyYAML
