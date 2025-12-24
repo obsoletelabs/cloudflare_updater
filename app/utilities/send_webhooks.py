@@ -25,6 +25,7 @@ def load_config():
     """t"""
     # Ensure file exists
     if not os.path.exists(CONFIG_PATH):
+        os.makedirs(os.path.dirname(CONFIG_PATH), exist_ok=True)
         with open(CONFIG_PATH, "w", encoding="utf-8") as f:
             yaml.safe_dump(DEFAULT_CONFIG, f)
 
