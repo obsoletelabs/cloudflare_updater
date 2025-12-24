@@ -22,11 +22,10 @@ LOGGING_LEVEL = os.environ.get("LOG_LEVEL", "INFO").strip().upper()
 logger = setup_logger(LOGGING_LEVEL, DEBUG_LOGGER_FORMAT)
 
 
-logger.info("""
-################################
-#          LOAD ENV            #
-################################
-""")
+
+print("################################")
+print("#          LOAD ENV            #")
+print("################################")
 
 # Get sleep time from environment variable or use default
 sleep_time = int(os.environ.get("CHECK_INTERVAL_SECONDS", 600))
@@ -110,7 +109,7 @@ def main():
                 logger.info("Updating IP address via Cloudflare API...")
                 update_ip.cloudflare(CLOUDFLARE_API_TOKEN, OLD_IP, current_ip)
             except Exception as e:
-                logger.error("Error updating IP address via Cloudflare API: %s", e)
+                logger.critical("Error updating IP address via Cloudflare API: %s", e)
 
             OLD_IP = current_ip # update OLD_IP
             logger.info("Updated IP address to: %s", current_ip)
@@ -122,9 +121,7 @@ def main():
 
 # Run main function
 if __name__ == "__main__":
-    logger.info("""
-################################
-#      Service running         #
-################################
-""")
+    print("################################")
+    print("#      Service running         #")
+    print("################################")
     main()

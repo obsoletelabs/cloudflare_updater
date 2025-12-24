@@ -62,7 +62,6 @@ def setup_logger(logging_level, debug_logger_format):
         logger.critical("critical")
 
 
-
     # finish up
     logger.info("Logging level set to %s", logging_level) # log the logging level as critical to ensure logged.
     logger.setLevel(log_level)
