@@ -1,4 +1,5 @@
 """A library that uses Cloudflare's API to find and replace all IP addresses."""
+
 import logging
 from typing import Any, Dict, List
 

@@ -13,13 +13,12 @@ from utilities.send_webhooks import send as send_webhooks
 ################################
 #           LOGGING            #
 ################################
-DEBUG_LOGGER_FORMAT = False # should be disabled for production
+DEBUG_LOGGER_FORMAT = False  # should be disabled for production
 
 # Set up logging, default to INFO level
 LOGGING_LEVEL = os.environ.get("LOG_LEVEL", "INFO").strip().upper()
 
 logger = setup_logger(LOGGING_LEVEL, DEBUG_LOGGER_FORMAT)
-
 
 
 print("################################")
@@ -32,7 +31,7 @@ logger.info("Check interval set to %s seconds.", sleep_time)
 
 
 # Get retry interval from environment variable or use default
-retry_interval = int(os.environ.get("RETRY_INTERVAL_SECONDS", 10)) # retry interval from environment variable
+retry_interval = int(os.environ.get("RETRY_INTERVAL_SECONDS", 10))  # retry interval from environment variable
 logger.info("Retry interval set to %s seconds.", retry_interval)
 
 
@@ -62,6 +61,7 @@ OLD_IP = initial_ip
 ################################
 SMTP_NOTIFIER_ENABLED = os.environ.get("SMTP_NOTIFIER_ENABLED", "false").lower() == "true"
 
+
 def notify_ip_change(old_ip, new_ip):
     """Notify IP change via enabled notifiers"""
     logger.debug("Sending webhooks")
@@ -79,15 +79,15 @@ def main():
     """The Main Function"""
     # Main loop
     global OLD_IP
-    #global EXTERNAL_NOTIFIERS
+    # global EXTERNAL_NOTIFIERS
 
     while True:
         logger.info("Checking for IP address change...")
 
         # Get current IP address with retries
-        found = False #TODO iceman can you see if this is actually needed anymore?
+        found = False  # TODO iceman can you see if this is actually needed anymore?
         while not found:
-            current_ip = get_ip(whoami_urls=WHOAMI_URLS) # grab the current ip address
+            current_ip = get_ip(whoami_urls=WHOAMI_URLS)  # grab the current ip address
             if current_ip is not None:
                 logger.info("Current IP: %s", current_ip)
                 found = True
@@ -96,12 +96,11 @@ def main():
             sleep(retry_interval)
 
         # Compare with OLD_IP and update if changed
-        if found and current_ip != OLD_IP: # if ip has changed
-
+        if found and current_ip != OLD_IP:  # if ip has changed
             # Ip change detected
             logger.warning("IP change detected: %s --> %s", OLD_IP, current_ip)
             # Send notifications if enabled
-            #if EXTERNAL_NOTIFIERS:
+            # if EXTERNAL_NOTIFIERS:
             notify_ip_change(OLD_IP, current_ip)
 
             # Update via Cloudflare API
@@ -111,12 +110,11 @@ def main():
             except Exception as e:
                 logger.critical("Error updating IP address via Cloudflare API: %s", e)
 
-            OLD_IP = current_ip # update OLD_IP
+            OLD_IP = current_ip  # update OLD_IP
             logger.info("Updated IP address to: %s", current_ip)
 
         logger.info("Sleeping for %s seconds...", sleep_time)
         sleep(sleep_time)  # wait sleeptime between checks
-
 
 
 # Run main function

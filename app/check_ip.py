@@ -7,15 +7,16 @@ from requests.exceptions import RequestException
 
 logger = logging.getLogger(__name__)
 
+
 def get_ip(whoami_urls: list[str]) -> str | None:
     """takes a list of urls to whoami websites and uses them to find the current ip address"""
 
-    for url in whoami_urls: # Attempts to use each url fails over to the next one
+    for url in whoami_urls:  # Attempts to use each url fails over to the next one
         try:
             logger.info("Checking IP via %s", url)
             result = requests.get(url, timeout=3)
             result.raise_for_status()
-            text = result.text.strip() # clean up the text
+            text = result.text.strip()  # clean up the text
 
             for line in text.split("\n"):
                 if "RemoteAddr" in str(line):
@@ -26,7 +27,7 @@ def get_ip(whoami_urls: list[str]) -> str | None:
             break
 
         except RequestException:
-            continue # failover to the next url
+            continue  # failover to the next url
     if ip:
         return ip
     else:

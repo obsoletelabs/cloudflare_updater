@@ -7,6 +7,7 @@ from app.utilities.env_loaders import (
 # Tests for get_cloudflare_api_token()
 # ---------------------------------------------------------
 
+
 def test_get_cloudflare_api_token_valid(mocker, monkeypatch):
     """Valid token → returns (True, token)"""
 
@@ -15,10 +16,7 @@ def test_get_cloudflare_api_token_valid(mocker, monkeypatch):
     mock_resp = mocker.Mock()
     mock_resp.json.return_value = {"success": True}
 
-    mocker.patch(
-        "app.utilities.env_loaders.requests.get",
-        return_value=mock_resp
-    )
+    mocker.patch("app.utilities.env_loaders.requests.get", return_value=mock_resp)
 
     ok, token = get_cloudflare_api_token()
     assert ok is True
@@ -31,15 +29,9 @@ def test_get_cloudflare_api_token_invalid(mocker, monkeypatch, caplog):
     monkeypatch.setenv("CLOUDFLARE_API_TOKEN", "bad-token")
 
     mock_resp = mocker.Mock()
-    mock_resp.json.return_value = {
-        "success": False,
-        "errors": ["bad token"]
-    }
+    mock_resp.json.return_value = {"success": False, "errors": ["bad token"]}
 
-    mocker.patch(
-        "app.utilities.env_loaders.requests.get",
-        return_value=mock_resp
-    )
+    mocker.patch("app.utilities.env_loaders.requests.get", return_value=mock_resp)
 
     ok, token = get_cloudflare_api_token()
     assert ok is False
@@ -63,6 +55,7 @@ def test_get_cloudflare_api_token_missing(monkeypatch, caplog):
 # ---------------------------------------------------------
 # Tests for get_whoami_urls()
 # ---------------------------------------------------------
+
 
 def test_get_whoami_urls_default(monkeypatch):
     """No WHOAMI_URLS → fallback URL is added"""
