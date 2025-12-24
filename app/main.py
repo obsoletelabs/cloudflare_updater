@@ -38,7 +38,7 @@ logging.basicConfig(
     handlers=[logging.StreamHandler(sys.stdout)]
 )
 logger = logging.getLogger(__name__)
-#TODO this should not be logging as critical
+
 logger.info("Logging level set to %s", LOGGING_LEVEL) # log the logging level as critical to ensure logged.
 logger.setLevel(LOG_LEVEL)
 

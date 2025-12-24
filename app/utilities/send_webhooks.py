@@ -1,21 +1,47 @@
 """some code to load webhook shit"""
+import os
+import logging
 import yaml
 import notify.webhooks as webhooks
-import logging
+
 
 CONFIG_PATH = "/config/webhooks.yml"
 logger = logging.getLogger(__name__)
 
-#TODO Should not load config every single time this needs to be fixed
+DEFAULT_CONFIG = {
+    "discord": {
+        "enabled": False,
+        "webhooks": []
+    }
+}
+
+
+def load_config():
+    """t"""
+    # Ensure file exists
+    if not os.path.exists(CONFIG_PATH):
+        with open(CONFIG_PATH, "w") as f:
+            yaml.safe_dump(DEFAULT_CONFIG, f)
+
+    # Load YAML (may be None)
+    with open(CONFIG_PATH, "r") as f:
+        config = yaml.safe_load(f) or {}
+
+    # Merge missing pieces
+    merged = DEFAULT_CONFIG.copy()
+    merged["discord"].update(config.get("discord", {}))
+    return merged
+
+
+CONFIG = load_config()
+
 def send(msg: str="default"):
     """Send msg to all webhooks configured"""
-    with open(CONFIG_PATH, "r") as f:
-        config = yaml.safe_load(f)
-
     # Discord
     try:
-        if config.get("discord", {"enabled":False})["enabled"]:
-            for webhook in config["discord"].get("webhooks", []):
+        if CONFIG.get("discord", {"enabled":False})["enabled"]:
+            logger.debug("Discord webhooks enabled sending now.")
+            for webhook in CONFIG["discord"].get("webhooks", []):
                 msg_discord = msg
 
                 if webhook.get("bold", False): msg_discord = "**" + msg_discord + "**"
@@ -23,5 +49,6 @@ def send(msg: str="default"):
                 msg_discord = msg_discord + webhook.get("ping", "")
 
                 webhooks.discord(webhook["url"], msg_discord, username=webhook["username"])
-    except Exception:
-        logger.warning("[WARNING] Failed to load discord webhooks")
+    except Exception as err:
+        logger.warning("Failed to load discord webhooks")
+        logger.warning(err)
