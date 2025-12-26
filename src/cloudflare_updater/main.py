@@ -77,7 +77,7 @@ def notify_ip_change(old_ip, new_ip):
         logger.debug("Sending email notification")
         subject = "IP Address Change Detected"
         body = f"The IP address has changed from {old_ip} to {new_ip}"
-        eeeeemail(subject, body, to_addrs=eemail.email_to)
+        eeeeemail(subject, body, eemail.email_to)
         logger.debug("Done sending email notification")
 
 
