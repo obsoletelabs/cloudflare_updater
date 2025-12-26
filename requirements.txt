@@ -1,3 +1,6 @@
 requests
 pyyaml
 colorlog
+tldextract
+socket
+ipaddress
