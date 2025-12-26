@@ -77,7 +77,7 @@ def notify_ip_change(old_ip, new_ip):
         logger.debug("Sending email notification")
         subject = "IP Address Change Detected"
         body = f"The IP address has changed from {old_ip} to {new_ip}"
-        eeeeemail(subject, body, to_addrs=eemail.EMAIL_TO_ADDRESSES)
+        eeeeemail(subject, body, to_addrs=eemail.email_to)
         logger.debug("Done sending email notification")
 
 
@@ -130,7 +130,8 @@ def main():
 
 # Run main function
 if __name__ == "__main__":
-    print("################################")
-    print("#      Service running         #")
-    print("################################")
+    #print("################################")
+    #print("#      Service running         #") # STOP PRINTING STUFF TO CONSOLE???? 
+    #print("################################") # ITS BAD FOR THE TREE SOCIETY
+    logger.info("Service started.")
     main()
