@@ -13,9 +13,17 @@ Well, thats not a problem! This service records your "old IP" and only updates r
 
 This container does not need any ports bound, as it purely sends outgoing traffic, and has no web interface. Environment variables include:
 
-**WHOAMI_URLS:** A list of urls you wish to use to check your IP, cascading if one fails. This will by default append  ```whoami.obsoletelabs.org:12345``` to your list (including no list specified). 
+**WHOAMI_URLS:** A list of urls you wish to use to check your IP, cascading if one fails. This will by default append  ```whoami.obsoletelabs.org:12345``` and ```whoami.obsoletelabs.net:12345``` to your list (including no list specified). This list can consist of URLs with or without http:// or https:// added, as it should autovalidate.
 
 **OVERRIDE_OBSOLETE_WHOAMI:** If you do not wish to have an obsolete whoami as a fallback, set this value to anything besides ```false```. 
+
+**ENFORCE_DNS_RESOLUTION:** By default the url checker will ensure DNS resolution of your whoami URLs, if you do not wish for this to occur, set this value to ```false```. 
+
+**TEST_URL_CONNECTIVITY:** By default the URL checker will test connectivity of the URLs (if it can get a "valid" IP back). If ```ENFORCE_URL_CONNECTIVITY``` is not set, this will just produce a warning in the logs.
+
+**ENFORCE_URL_CONNECTIVITY:** By default the URL checker will not enforce a check on the URL connectivity (as in check if it can recieve an IP address before allowing the URL to be used in the main environment). You can set this value to ```true``` to ensure any values are checked before being in service. This will **not** override ```TEST_URL_CONNECTIVITY```.
+
+**ENFORCE_URL_VALIDITY:** By default the URL checker will not enforce the URLs having to give an IP as an expected output. This requires both ```TEST_URL_CONNECTIVITY``` and ```ENFORCE_URL_CONNECTIVITY``` to be set to ```true```. If this is not set you may still get a warning that no IP was found if the URL connects.
 
 **CLOUDFLARE_API_TOKEN:** This is your cloudflare API token, make sure it can read and write in the zones you want it to update. Note, the container cannot operate if you do not set this.
 
@@ -26,6 +34,8 @@ This container does not need any ports bound, as it purely sends outgoing traffi
 **LOG_LEVEL:** This lets you set the logging level of the output. Valid options are debug, info, warning, error, critical. This defaults to info, and we do not recommend changing this.
 
 **INITIAL_IP:** This lets you set a predetermined initial IP address for the system to use. This can be used to verify it changes the records you expect it to alter without having to wait for your ip address to change. This will set itself to your current ip as determined by the WHOAMI URLs if not set.
+
+
 
 ### Notifications
 

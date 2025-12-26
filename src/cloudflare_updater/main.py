@@ -21,9 +21,9 @@ LOGGING_LEVEL = os.environ.get("LOG_LEVEL", "INFO").strip().upper()
 logger = setup_logger(LOGGING_LEVEL, DEBUG_LOGGER_FORMAT)
 
 
-print("################################")
-print("#          LOAD ENV            #")
-print("################################")
+#print("################################")
+#print("#          LOAD ENV            #") # STOP PRINTING STUFF TO CONSOLE????
+#print("################################")
 
 # Get sleep time from environment variable or use default
 sleep_time = int(os.environ.get("CHECK_INTERVAL_SECONDS", 600))
@@ -50,7 +50,7 @@ logger.info("Using WHOAMI_URLS: %s", WHOAMI_URLS)
 # Get the initial IP address, log, and set as OLD_IP
 initial_ip = os.environ.get("INITIAL_IP", None)
 if initial_ip:
-    logger.warning("Initial IP overwritten by debug value (Not recemended for production use)")
+    logger.warning("Initial IP overwritten by debug value. (Not recemended for production use)")
 else:
     initial_ip = get_ip(whoami_urls=WHOAMI_URLS)[1]
 logger.info("Initial IP set to: %s", initial_ip)
