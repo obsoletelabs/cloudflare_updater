@@ -8,6 +8,8 @@ You have a couple of ways around this, using a DDNS provider with a way to autom
 This is a way around that. Our company renouned programmers have come up with a docker container, that will keep your IP addresses on cloudflare updated. But simultainously, who can be bothered to keep a service up to date with all the subdomains you use, and what about if you use the same domain on multiple different ip addresses?
 Well, thats not a problem! This service records your "old IP" and only updates records with this old IP when your ip changes. This means you can use it on multiple services, with no issue.
 
+Also, you can use this with DHCP, run the service on a device with DHCP (and only one connection to the router), with a whoami endpoint on your network with a static IP somehow, and boom. Or run enough of these that DHCP cant break every endpoint (ie 12+, but if you have that many why the hell cant you just use static IPs????)
+
 
 # Config
 
