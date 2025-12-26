@@ -79,6 +79,8 @@ def send_email_notification(subject: str, body: str, sendto=None) -> bool:
         return False
 
     recipients = _normalize_recipients(sendto)
+
+    # build email message
     message = f"Subject: {subject}\n\n{body}"
 
     for attempt in range(1, smtp_retries + 1):
