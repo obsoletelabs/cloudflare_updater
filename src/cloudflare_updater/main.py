@@ -9,6 +9,8 @@ from check_ip import get_ip
 from setup_logger import setup_logger
 from utilities import env_loaders
 from utilities.send_webhooks import send as send_webhooks
+import notify.send_email_notification as eemail
+from notify.send_email_notification import send_email_notification as eeeeemail
 
 ################################
 #           LOGGING            #
@@ -59,7 +61,10 @@ OLD_IP = initial_ip
 ################################
 #           Notify             #
 ################################
-SMTP_NOTIFIER_ENABLED = os.environ.get("SMTP_NOTIFIER_ENABLED", "false").lower() == "true"
+enable_email_notifications = False
+if eemail.SMTP_NOTIFIER_ENABLED:
+    logger.info("SMTP Notifier is enabled.")
+    enable_email_notifications = True
 
 
 def notify_ip_change(old_ip, new_ip):
@@ -68,6 +73,12 @@ def notify_ip_change(old_ip, new_ip):
     send_webhooks(f"WARNING ip {old_ip} CHANGED to {new_ip}!")
     logger.debug("Done sending webhooks")
     # Add other notifiers here as needed
+    if enable_email_notifications:
+        logger.debug("Sending email notification")
+        subject = "IP Address Change Detected"
+        body = f"The IP address has changed from {old_ip} to {new_ip}"
+        eeeeemail(subject, body, to_addrs=eemail.EMAIL_TO_ADDRESSES)
+        logger.debug("Done sending email notification")
 
 
 ################################

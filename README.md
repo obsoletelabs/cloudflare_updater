@@ -41,7 +41,28 @@ This container does not need any ports bound, as it purely sends outgoing traffi
 
 ### Notifications
 
-**DISCORD_WEBHOOK_URL**: This is a discord webhook url that can optionaly be added to send notifications to discord
+**DISCORD_WEBHOOK_URL:**: This is a discord webhook url that can optionaly be added to send notifications to discord
+
+**SMTP stuff** 
+smtp_enabled = environ.get("NOTIFIER_SMTP_ENABLED", "false").lower() == "true" enable this if you want to use smtp
+smtp_username = environ.get("NOTIFIER_SMTP_USERNAME", "") put your login username
+smtp_password = environ.get("NOTIFIER_SMTP_PASSWORD", "") put your login password
+smtp_server = environ.get("NOTIFIER_SMTP_SERVER", "") which server we using
+smtp_port = int(environ.get("NOTIFIER_SMTP_PORT", "587")) what port we connecting (optional, default for security defined)
+smtp_security = environ.get("NOTIFIER_SMTP_SECURITY", "starttls").lower()  # starttls, tls, none what security we using? (optional, starttls)
+
+email_from = environ.get("NOTIFIER_EMAIL_FROM_ADDRESS", smtp_username) who you sending from (optional, smtp username)
+email_to = environ.get("NOTIFIER_EMAIL_TO_ADDRESSES", "") who are you sending to
+
+smtp_retries = int(environ.get("NOTIFIER_SMTP_RETRIES", "3")) how many retries (optional, 3)
+smtp_retry_delay = float(environ.get("NOTIFIER_SMTP_RETRY_DELAY", "1.5")) how much delay for retries (optional, 1.5)
+
+
+
+
+
+
+
 
 test branch
 
