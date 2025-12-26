@@ -62,7 +62,7 @@ OLD_IP = initial_ip
 #           Notify             #
 ################################
 enable_email_notifications = False
-if eemail.SMTP_NOTIFIER_ENABLED:
+if eemail.smtp_enabled:
     logger.info("SMTP Notifier is enabled.")
     enable_email_notifications = True
 
