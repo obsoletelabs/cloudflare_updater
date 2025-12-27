@@ -79,6 +79,8 @@ def notify_ip_change(old_ip, new_ip, notifyinformation):
     if enable_email_notifications:
         logger.debug("Sending email notification")
         notifyinformation_str = "<br>".join(f"{k}: {v}" for k, v in notifyinformation.items())
+        if notifyinformation_str == "":
+            notifyinformation_str = "No additional information available - no updates occured."
 
         mail_context = {
             "Subject": "IP Address Change Detected for " + service_name,
