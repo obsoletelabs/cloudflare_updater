@@ -2,7 +2,7 @@
 [![CI](https://github.com/obsoletelabs/cloudflare_updater/actions/workflows/CI.yml/badge.svg)](https://github.com/obsoletelabs/cloudflare_updater/actions/workflows/CI.yml)
 # Obsoletelabs Cloudflare Updater
 
-Most of us have dynamicly assigned IP addresses by our ISPs, especially with ipv4, and this can make self hosting services a pain. 
+Most of us have dynamically assigned IP addresses by our ISPs, especially with ipv4, and this can make self hosting services a pain. 
 You have a couple of ways around this, using a DDNS provider with a way to automatically update, realising your services are down and updating your ips, or running local only and requiring VPN/Proxy connection in order to use your services.
 
 This is a way around that. Our company renouned programmers have come up with a docker container, that will keep your IP addresses on cloudflare updated. But simultainously, who can be bothered to keep a service up to date with all the subdomains you use, and what about if you use the same domain on multiple different ip addresses?
