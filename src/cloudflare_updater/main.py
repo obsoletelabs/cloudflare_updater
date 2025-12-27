@@ -81,7 +81,8 @@ def notify_ip_change(old_ip, new_ip):
 
         mail_context = {
             "Subject": "IP Address Change Detected for " + service_name,
-            "Body": f"Message from {service_name}: <br><br>Notice: The IP address has changed from {old_ip} to {new_ip}. <br>The automated Cloudflare Update will now proceed to update the DNS records accordingly. <br>"
+            "Greeting": f"Message from {service_name},<br>",
+            "Body": f"Your IP address has changed from {old_ip} to {new_ip}. <br>The automated Cloudflare Update will now proceed to update the DNS records accordingly. <br>"
         } # The body takes in HTML formatting
         send_email(mail_context, eemail.email_to)
         logger.debug("Done sending email notification")
