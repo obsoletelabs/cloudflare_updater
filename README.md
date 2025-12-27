@@ -15,6 +15,8 @@ Also, you can use this with DHCP, run the service on a device with DHCP (and onl
 
 This container does not need any ports bound, as it purely sends outgoing traffic, and has no web interface. Environment variables include:
 
+## General config
+
 **WHOAMI_URLS:** A list of urls you wish to use to check your IP, cascading if one fails. This will by default append  ```whoami.obsoletelabs.org:12345``` and ```whoami.obsoletelabs.net:12345``` to your list (including no list specified). This list can consist of URLs with or without http:// or https:// added, as it should autovalidate.
 
 **OVERRIDE_OBSOLETE_WHOAMI:** If you do not wish to have an obsolete whoami as a fallback, set this value to anything besides ```false```. 
@@ -37,37 +39,52 @@ This container does not need any ports bound, as it purely sends outgoing traffi
 
 **INITIAL_IP:** This lets you set a predetermined initial IP address for the system to use. This can be used to verify it changes the records you expect it to alter without having to wait for your ip address to change. This will set itself to your current ip as determined by the WHOAMI URLs if not set.
 
-**SERVICE_NAME:** Pick the name you want email notifications to say they are for. This defaults to Obsoletelabs Cloudflare Updater
+**SERVICE_NAME:** Pick the name you want email notifications to say they are for. This defaults to ```Obsoletelabs Cloudflare Updater```, but you can change the name for more informational emails.ß
 
-### Notifications
+## Discord webhook Notifications
 
-**DISCORD_WEBHOOK_URL:**: This is a discord webhook url that can optionaly be added to send notifications to discord
+**DISCORD_WEBHOOK_URL:**: This is a discord webhook url that can optionaly be added to send notifications to discord (probably depreciated for a .conf file)
 
-**SMTP stuff** 
+## SMTP Notifications
 
 Below is the environment imports for the SMTP service. If you dont know how to read it, you probably should set it up. Just get the caps things, set them, or leave them empty if they look like they have suitable defaults.
 
-```py
-smtp_enabled = environ.get("NOTIFIER_SMTP_ENABLED", "false").lower() == "true"
-smtp_username = environ.get("NOTIFIER_SMTP_USERNAME", "")
-smtp_password = environ.get("NOTIFIER_SMTP_PASSWORD", "")
-smtp_server = environ.get("NOTIFIER_SMTP_SERVER", "mail.obsoletelabs.net")
-smtp_security = environ.get("NOTIFIER_SMTP_SECURITY", "starttls").lower()
-smtp_port = int( environ.get("NOTIFIER_SMTP_PORT", "0") )
-if smtp_port == 0:
-    if smtp_security == "tls":
-        smtp_port = 465
-    elif smtp_security == "starttls":
-        smtp_port = 587
-    else:
-        smtp_port = 25
-email_from = environ.get("NOTIFIER_EMAIL_FROM_ADDRESS", smtp_username)
-reply_to = environ.get("NOTIFIER_SMTP_REPLYTO_ADDRESS", email_from)
-email_to = environ.get("NOTIFIER_EMAIL_TO_ADDRESSES", "")
-unsubscribe_header = environ.get("NOTIFIER_SMTP_UNSUBSCRIBE_HEADER", f"<mailto:{email_from}>")
-smtp_precedence = environ.get("NOTIFIER_SMTP_PRECEDENCE", "bulk")
-smtp_retries = int(environ.get("NOTIFIER_SMTP_RETRIES", "3"))
-smtp_retry_delay = float(environ.get("NOTIFIER_SMTP_RETRY_DELAY", "1.5"))
+**NOTIFIER_SMTP_ENABLED:** If you wish to use smtp set this to ```true```, however if necessary values aren't set it will disable itself. It will never enable itself.
+
+**NOTIFIER_SMTP_USERNAME:** This is the username you use to login to the SMTP server, it is required.
+
+**NOTIFIER_SMTP_PASSWORD:** This is the password you use to login to your SMTP server, it is also required.
+
+**NOTIFIER_SMTP_SERVER:** This is where you put the smtp server (eg ```mail.obsoletelabs.net```, which it defaults to because this is obsolete first). This is required if you are not using the Obsolete Labs mail server.
+
+**NOTIFIER_SMTP_SECURITY:** This is where you should define what security standard the mail server you are using uses. Valid options are ```starttls```, ```tls```, and none (any value other than starttls, tls, and not set). This will default to starttls if not set.
+
+**NOTIFIER_SMTP_PORT:** This is where you can define the SMTP port your mail server uses. If not set this will use the default for your security method. (starttls-->587, tls-->465, none-->25)
+
+**NOTIFIER_EMAIL_TO_ADDRESSES:** This is where you define who to send emails to, it can be a comma separated list. Eg: ```admin@obsoletelabs.net,admin2@obsoletelabs.net``` 
+
+**NOTIFIER_EMAIL_FROM_ADDRESS:** This is where you can set what the email will claim to be sent from, if not set it will default to your SMTP username. Examples include ```admin@obsoletelabs.net```, ```Obsoletelabs Admin <admin@obsoletelabs.net>```, and ```"Obsoletelabs Superadmin" <admin@obsoletelabs.net>``` If this is not set to a valid address from for your email server, it may get flagged by email providers.
+
+**NOTIIFER_SMTP_REPLYTO_ADDRESS:** This is where you can set an alternate reply to address for the emails sent. If this is not set it will default to your SMTP username.
+
+**NOTIFIER_SMTP_UNSUBSCRIBE_HEADER:** This is where you can set an unsubscribe header for your emails. This will default to ```<mailto:yoursmtpsender>``` (ie the address sending emails). Valid options include any ```<mailto:>```, or a URL, or can be both: ```<mailto:yourSMTPusername>, <https://yourUnsubscribeAddress.com>```
+
+**NOTIFIER_SMTP_PRECEDENCE:** This is how you can define to other mail servers how the message should be treated. Valid options are ```bulk``` (automated system mail), ```list``` (mailing lists), ```junk``` (low priority emails), or ```auto_reply``` (auto-generated email replies). This will default to bulk, however you can change it if needed. 
+
+**NOTIFIER_SMTP_RETRIES:** This is the number of times that the notifier will attempt to submit/loging to your mail server. This is optional and will default to 3.
+
+**NOTIFIER_SMTP_RETRY_DELAY:** This is the delay between SMTP submission attempts, it is optional and will default to 1.5s.
+
+Additionally, the header for ```Message-ID``` is included by default, and the ```Auto-Submitted``` header is not included. These defaults cannot be customised through environment variables at this time.
+
+Although these SMTP settings seem confusing, this is the minimal environment variables for a server running with starttls on the default port:
+
+```yaml
+NOTIFIER_SMTP_ENABLED=true
+NOTIFIER_SMTP_USERNAME=youremail@youremail.domain
+NOTIFIER_SMTP_PASSWORD=YourSecurePassword123
+NOTIIFER_SMTP_SERVER=mail.youremail.domain
+NOTIFIER_EMAIL_TO_ADDRESSES=youremail@youremail.domain
 ```
 
 
