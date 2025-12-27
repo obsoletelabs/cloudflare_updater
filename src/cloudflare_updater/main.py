@@ -58,6 +58,9 @@ else:
 logger.info("Initial IP set to: %s", initial_ip)
 OLD_IP = initial_ip
 
+service_name = os.environ.get("SERVICE_NAME", "Obsoletelabs Cloudflare Updater") # Service name for notifications
+logger.info("Service name set to: %s", service_name)
+
 ################################
 #           Notify             #
 ################################
@@ -75,10 +78,10 @@ def notify_ip_change(old_ip, new_ip):
     # Add other notifiers here as needed
     if enable_email_notifications:
         logger.debug("Sending email notification")
-        service = os.environ.get("SERVICE_OVERRIDE", "Obsoletelabs Cloudflare Updater")
+
         mail_context = {
-            "Subject": "IP Address Change Detected",
-            "Body": f"Message from {service}: <br><br>Notice: The IP address has changed from {old_ip} to {new_ip}. <br>The automated Cloudflare Update will now proceed to update the DNS records accordingly. <br>"
+            "Subject": "IP Address Change Detected for " + service_name,
+            "Body": f"Message from {service_name}: <br><br>Notice: The IP address has changed from {old_ip} to {new_ip}. <br>The automated Cloudflare Update will now proceed to update the DNS records accordingly. <br>"
         } # The body takes in HTML formatting
         send_email(mail_context, eemail.email_to)
         logger.debug("Done sending email notification")

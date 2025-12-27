@@ -30,7 +30,10 @@ if smtp_port == 0:
 
 
 email_from = environ.get("NOTIFIER_EMAIL_FROM_ADDRESS", smtp_username)
+reply_to = environ.get("NOTIFIER_SMTP_REPLYTO_ADDRESS", email_from)
 email_to = environ.get("NOTIFIER_EMAIL_TO_ADDRESSES", "")
+unsubscribe_header = environ.get("NOTIFIER_SMTP_UNSUBSCRIBE_HEADER", f"<mailto:{email_from}>")
+smtp_precedence = environ.get("NOTIFIER_SMTP_PRECEDENCE", "bulk")
 
 # Retry configuration
 smtp_retries = int(environ.get("NOTIFIER_SMTP_RETRIES", "3"))
@@ -87,8 +90,8 @@ def render_email_template(context: dict) -> tuple[str, str, str]:
     body_html = f"""\
 <html>
     <body>
-        <p>{greeting}</p>
-        <p>{body}</p> 
+        <p>{greeting}</p><br>
+        <p>{body}</p><br> 
         <p>{conclusion}</p>
         <hr>
         <small>{footer}</small>
@@ -97,6 +100,8 @@ def render_email_template(context: dict) -> tuple[str, str, str]:
 """ 
 
     # ----- Build plain body ----- and mess with the context (thats why its after)
+    greeting = greeting.replace("<br>", "\n").replace("<br/>", "\n").replace("<br />", "\n")
+    body = body.replace("<br>", "\n").replace("<br/>", "\n").replace("<br />", "\n")
     conclusion = conclusion.replace("<br>", "\n").replace("<br/>", "\n").replace("<br />", "\n")
     footer = footer.replace("<br>", "\n").replace("<br/>", "\n").replace("<br />", "\n")
     body_plain = (
@@ -132,10 +137,10 @@ def send_email_notification(email_context: dict, sendto=None) -> bool:
     msg["To"] = ", ".join(recipients)
     msg["Subject"] = subject
     msg["Date"] = formatdate(localtime=True)
-    msg["Reply-To"] = environ.get("NOTIFIER_SMTP_REPLYTO_ADDRESS", email_from)
-    msg["List-Unsubscribe"] = environ.get("NOTIFIER_SMTP_UNSUBSCRIBE_HEADER", f"<mailto:{email_from}>")
+    msg["Reply-To"] = reply_to
+    msg["List-Unsubscribe"] = unsubscribe_header
     msg["Message-ID"] = make_msgid()
-    msg["Precedence"] = "bulk"
+    msg["Precedence"] = smtp_precedence
 
 
     # Add both versions

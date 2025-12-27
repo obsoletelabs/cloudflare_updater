@@ -37,29 +37,38 @@ This container does not need any ports bound, as it purely sends outgoing traffi
 
 **INITIAL_IP:** This lets you set a predetermined initial IP address for the system to use. This can be used to verify it changes the records you expect it to alter without having to wait for your ip address to change. This will set itself to your current ip as determined by the WHOAMI URLs if not set.
 
-
+**SERVICE_NAME:** Pick the name you want email notifications to say they are for. This defaults to Obsoletelabs Cloudflare Updater
 
 ### Notifications
 
 **DISCORD_WEBHOOK_URL:**: This is a discord webhook url that can optionaly be added to send notifications to discord
 
 **SMTP stuff** 
-smtp_enabled = environ.get("NOTIFIER_SMTP_ENABLED", "false").lower() == "true" enable this if you want to use smtp
-smtp_username = environ.get("NOTIFIER_SMTP_USERNAME", "") put your login username
-smtp_password = environ.get("NOTIFIER_SMTP_PASSWORD", "") put your login password
-smtp_server = environ.get("NOTIFIER_SMTP_SERVER", "") which server we using
-smtp_port = int(environ.get("NOTIFIER_SMTP_PORT", "587")) what port we connecting (optional, default for security defined)
-smtp_security = environ.get("NOTIFIER_SMTP_SECURITY", "starttls").lower()  # starttls, tls, none what security we using? (optional, starttls)
 
-email_from = environ.get("NOTIFIER_EMAIL_FROM_ADDRESS", smtp_username) who you sending from (optional, smtp username)
-email_to = environ.get("NOTIFIER_EMAIL_TO_ADDRESSES", "") who are you sending to
+Below is the environment imports for the SMTP service. If you dont know how to read it, you probably should set it up. Just get the caps things, set them, or leave them empty if they look like they have suitable defaults.
 
-smtp_retries = int(environ.get("NOTIFIER_SMTP_RETRIES", "3")) how many retries (optional, 3)
-smtp_retry_delay = float(environ.get("NOTIFIER_SMTP_RETRY_DELAY", "1.5")) how much delay for retries (optional, 1.5)
-
-
-
-
+```py
+smtp_enabled = environ.get("NOTIFIER_SMTP_ENABLED", "false").lower() == "true"
+smtp_username = environ.get("NOTIFIER_SMTP_USERNAME", "")
+smtp_password = environ.get("NOTIFIER_SMTP_PASSWORD", "")
+smtp_server = environ.get("NOTIFIER_SMTP_SERVER", "mail.obsoletelabs.net")
+smtp_security = environ.get("NOTIFIER_SMTP_SECURITY", "starttls").lower()
+smtp_port = int( environ.get("NOTIFIER_SMTP_PORT", "0") )
+if smtp_port == 0:
+    if smtp_security == "tls":
+        smtp_port = 465
+    elif smtp_security == "starttls":
+        smtp_port = 587
+    else:
+        smtp_port = 25
+email_from = environ.get("NOTIFIER_EMAIL_FROM_ADDRESS", smtp_username)
+reply_to = environ.get("NOTIFIER_SMTP_REPLYTO_ADDRESS", email_from)
+email_to = environ.get("NOTIFIER_EMAIL_TO_ADDRESSES", "")
+unsubscribe_header = environ.get("NOTIFIER_SMTP_UNSUBSCRIBE_HEADER", f"<mailto:{email_from}>")
+smtp_precedence = environ.get("NOTIFIER_SMTP_PRECEDENCE", "bulk")
+smtp_retries = int(environ.get("NOTIFIER_SMTP_RETRIES", "3"))
+smtp_retry_delay = float(environ.get("NOTIFIER_SMTP_RETRY_DELAY", "1.5"))
+```
 
 
 
