@@ -10,7 +10,7 @@ from setup_logger import setup_logger
 from utilities import env_loaders
 from utilities.send_webhooks import send as send_webhooks
 import notify.send_email_notification as eemail
-from notify.send_email_notification import send_email_notification as eeeeemail
+from notify.send_email_notification import send_email_notification as send_email
 
 ################################
 #           LOGGING            #
@@ -75,9 +75,12 @@ def notify_ip_change(old_ip, new_ip):
     # Add other notifiers here as needed
     if enable_email_notifications:
         logger.debug("Sending email notification")
-        subject = "IP Address Change Detected"
-        body = f"The IP address has changed from {old_ip} to {new_ip}"
-        eeeeemail(subject, body, eemail.email_to)
+        service = os.environ.get("SERVICE_OVERRIDE", "Obsoletelabs Cloudflare Updater")
+        mail_context = {
+            "Subject": "IP Address Change Detected",
+            "Body": f"Message from {service}: <br><br>Notice: The IP address has changed from {old_ip} to {new_ip}. <br>The automated Cloudflare Update will now proceed to update the DNS records accordingly. <br>"
+        } # The body takes in HTML formatting
+        send_email(mail_context, eemail.email_to)
         logger.debug("Done sending email notification")
 
 
