@@ -70,7 +70,7 @@ if eemail.smtp_enabled:
     enable_email_notifications = True
 
 
-def notify_ip_change(old_ip, new_ip):
+def notify_ip_change(old_ip, new_ip, notifyinformation):
     """Notify IP change via enabled notifiers"""
     logger.debug("Sending webhooks")
     send_webhooks(f"WARNING ip {old_ip} CHANGED to {new_ip}!")
@@ -78,11 +78,12 @@ def notify_ip_change(old_ip, new_ip):
     # Add other notifiers here as needed
     if enable_email_notifications:
         logger.debug("Sending email notification")
+        notifyinformation_str = "<br>".join(f"{k}: {v}" for k, v in notifyinformation.items())
 
         mail_context = {
             "Subject": "IP Address Change Detected for " + service_name,
             "Greeting": f"Message from {service_name},<br>",
-            "Body": f"Your IP address has changed from {old_ip} to {new_ip}. <br>The automated Cloudflare Update will now proceed to update the DNS records accordingly. <br>"
+            "Body": f"Your IP address has changed from {old_ip} to {new_ip}. <br>The cloudflare update retrieved this information: <br>" + notifyinformation_str 
         } # The body takes in HTML formatting
         send_email(mail_context, eemail.email_to)
         logger.debug("Done sending email notification")
@@ -119,15 +120,17 @@ def main():
             logger.warning("IP change detected: %s --> %s", OLD_IP, current_ip)
             # Send notifications if enabled
             # if EXTERNAL_NOTIFIERS:
-            notify_ip_change(OLD_IP, current_ip)
+            
 
             # Update via Cloudflare API
+            notifyinformation = {"Error": "Failed to update IP via Cloudflare API."}
             try:
                 logger.info("Updating IP address via Cloudflare API...")
-                update_ip.cloudflare(CLOUDFLARE_API_TOKEN, OLD_IP, current_ip)
+                notifyinformation = update_ip.cloudflare(CLOUDFLARE_API_TOKEN, OLD_IP, current_ip)
             except Exception as e:
                 logger.critical("Error updating IP address via Cloudflare API: %s", e)
 
+            notify_ip_change(OLD_IP, current_ip, notifyinformation)
             OLD_IP = current_ip  # update OLD_IP
             logger.info("Updated IP address to: %s", current_ip)
 
