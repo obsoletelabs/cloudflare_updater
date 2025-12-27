@@ -4,6 +4,9 @@ import logging
 import time
 from os import environ
 from smtplib import SMTP, SMTP_SSL
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.utils import formatdate
 
 logger = logging.getLogger(__name__)
 
@@ -73,7 +76,7 @@ def _open_smtp_connection():
 
 
 def send_email_notification(subject: str, body: str, sendto=None) -> bool:
-    """Send an email using SMTP with TLS, login, retry logic, and fallback recipients."""
+    """Send an email using SMTP with TLS, login, retry logic, and fallback recipients. And hopefully plaintext and HTML versions."""
     if not smtp_enabled:
         logger.warning("SMTP is disabled; email not sent.")
         return False
@@ -81,14 +84,69 @@ def send_email_notification(subject: str, body: str, sendto=None) -> bool:
     recipients = _normalize_recipients(sendto)
 
     # build email message
-    message = {
-        "From": email_from,
-        "To": ", ".join(recipients),
-        "Date": time.strftime("%a, %d %b %Y %H:%M:%S %z"),
-        "Subject": subject,
-        "Body": body
-    }
-    message = f"From: {message['From']}\nTo: {message['To']}\nSubject: {message['Subject']}\nDate: {message['Date']}\n\n{message['Body']}"
+
+
+
+    # ----- Build template parts -----
+    greeting = "Hello,"
+    conclusion = "Regards,<br>Obsoletelabs Notification System"
+    footer = (
+        "<hr>"
+        "<small>This is an automated message from Obsoletelabs. "
+        "You are receiving these emails as you have been nominated as an endpoint in one of our services, and as such we cannot unsubscribe you remotely.</small>"
+    )
+
+    # ----- Build HTML body -----
+    html_body = f"""\
+    <html>
+      <body>
+        <p>{greeting}</p>
+        <p>{body}</p>
+        <p>{conclusion}</p>
+        {footer}
+      </body>
+    </html>
+    """
+
+    # ----- Build plaintext fallback -----
+    plain_body = (
+        f"{greeting}\n\n"
+        f"{body}\n\n"
+        "Regards,\nObsoletelabs Notification System\n\n"
+        "----\n"
+        "This is an automated message from Obsoletelabs.\n"
+        "You are receiving these emails as you have been nominated as an endpoint in one of our services, and as such we cannot unsubscribe you remotely."
+    )
+
+    # ----- Build MIME message -----
+    msg = MIMEMultipart("alternative")
+    msg["From"] = email_from
+    msg["To"] = ", ".join(recipients)
+    msg["Subject"] = subject
+    msg["Date"] = formatdate(localtime=True)
+    msg["List-Unsubscribe"] = f"<mailto:{email_from}>"
+
+    # Add both versions
+    msg.attach(MIMEText(plain_body, "plain"))
+    msg.attach(MIMEText(html_body, "html"))
+    message = msg.as_string()
+
+#    message = {
+#        "From": email_from,
+#        "To": ", ".join(recipients),
+#        "Date": time.strftime("%a, %d %b %Y %H:%M:%S %z"),
+#        "Subject": subject,
+#        "Body": body
+#    }
+#    message = (
+#f"""From: {message['From']}
+#To: {message['To']}
+#Subject: {message['Subject']}
+#Date: {message['Date']}
+#Content-Type: text/plain; charset="utf-8"
+#
+#{message['Body']}"""
+#    )
     #message = f"Subject: {subject}\n\n{body}"
 
     for attempt in range(1, smtp_retries + 1):
