@@ -81,7 +81,15 @@ def send_email_notification(subject: str, body: str, sendto=None) -> bool:
     recipients = _normalize_recipients(sendto)
 
     # build email message
-    message = f"Subject: {subject}\n\n{body}"
+    message = {
+        "From": email_from,
+        "To": ", ".join(recipients),
+        "Date": time.strftime("%a, %d %b %Y %H:%M:%S %z"),
+        "Subject": subject,
+        "Body": body
+    }
+    message = f"From: {message['From']}\nTo: {message['To']}\nSubject: {message['Subject']}\nDate: {message['Date']}\n\n{message['Body']}"
+    #message = f"Subject: {subject}\n\n{body}"
 
     for attempt in range(1, smtp_retries + 1):
         try:

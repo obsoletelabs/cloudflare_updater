@@ -32,7 +32,7 @@ def resolves(hostname):
     try: 
         socket.gethostbyname(hostname) 
         return True 
-    except socket.gaierror: 
+    except: 
         return False
 
 def try_connect(url):
@@ -204,6 +204,8 @@ def get_whoami_urls():
     output_whoami_urls = []
     for url in whoami_urls:
         if url != "": # Skip empty entries
+            if "://" not in url:
+                url = "none://" + url  # default to http if no scheme provided
             valid_urls = validate_url(url)
             output_whoami_urls.extend(valid_urls)
     
