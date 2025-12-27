@@ -58,6 +58,8 @@ def cloudflare(api_token: str, old_ip: str, new_ip: str) -> None:
 
             page += 1
 
+        logger.info("Fetched %i zones from Cloudflare.", len(zones))
+        logger.debug("Zones: %s", zones)
         return zones
 
     # ------------------------------------------------------------
@@ -88,6 +90,8 @@ def cloudflare(api_token: str, old_ip: str, new_ip: str) -> None:
 
             page += 1
 
+        logger.info("Fetched %i A records for zone %s.", len(records), zone_id)
+        logger.debug("Records for zone %s: %s", zone_id, records)
         return records
 
     # ------------------------------------------------------------
@@ -122,8 +126,10 @@ def cloudflare(api_token: str, old_ip: str, new_ip: str) -> None:
                     name,
                     zone_id,
                 )
+                notifyinformation[name] = "403 Forbidden: No permission to update record."
                 return
-
+        
+            notifyinformation[name] = "Successfully updated."
             resp.raise_for_status()
 
         except requests.RequestException as e:
@@ -133,12 +139,14 @@ def cloudflare(api_token: str, old_ip: str, new_ip: str) -> None:
                 str(e),
                 payload,
             )
+            notifyinformation[name] = f"Error updating record: {str(e)}"
 
     # ------------------------------------------------------------
     # Main update loop
     # ------------------------------------------------------------
     zones = get_all_zones()
     logger.info("Found %i zones.", len(zones))
+    notifyinformation = {}
 
     for zone in zones:
         zone_id = zone["id"]
@@ -165,3 +173,5 @@ def cloudflare(api_token: str, old_ip: str, new_ip: str) -> None:
                 )
 
     logger.info("Update complete.")
+    logger.debug("Notification information: %s", notifyinformation)
+    return notifyinformation
