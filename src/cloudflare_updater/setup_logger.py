@@ -6,7 +6,7 @@ import sys
 from colorlog import ColoredFormatter
 
 
-def setup_logger(logging_level: str, debug_logger_format: bool) -> logging.Logger:
+def setup_logger(logging_level: str, debug_logger_format: bool, enable_color: bool = True) -> logging.Logger:
     """Creates and returns the logger"""
     if logging_level == "DEBUG":
         log_level = logging.DEBUG
@@ -44,7 +44,8 @@ def setup_logger(logging_level: str, debug_logger_format: bool) -> logging.Logge
     )
 
     handler = logging.StreamHandler(sys.stdout)
-    handler.setFormatter(formatter)
+    if enable_color: 
+        handler.setFormatter(formatter)
 
     logging.basicConfig(level=logging.DEBUG, handlers=[handler])
 
