@@ -4,13 +4,13 @@
 import os
 from time import sleep
 
+import notify.send_email_notification as eemail
 import update_ip
 from check_ip import get_ip
+from notify.send_email_notification import send_email_notification as send_email
 from setup_logger import setup_logger
 from utilities import env_loaders
 from utilities.send_webhooks import send as send_webhooks
-import notify.send_email_notification as eemail
-from notify.send_email_notification import send_email_notification as send_email
 
 ################################
 #           LOGGING            #
@@ -23,9 +23,9 @@ LOGGING_LEVEL = os.environ.get("LOG_LEVEL", "INFO").strip().upper()
 logger = setup_logger(LOGGING_LEVEL, DEBUG_LOGGER_FORMAT)
 
 
-#print("################################")
-#print("#          LOAD ENV            #") # STOP PRINTING STUFF TO CONSOLE????
-#print("################################")
+# print("################################")
+# print("#          LOAD ENV            #") # STOP PRINTING STUFF TO CONSOLE????
+# print("################################")
 
 # Get sleep time from environment variable or use default
 sleep_time = int(os.environ.get("CHECK_INTERVAL_SECONDS", 600))
@@ -58,7 +58,7 @@ else:
 logger.info("Initial IP set to: %s", initial_ip)
 OLD_IP = initial_ip
 
-service_name = os.environ.get("SERVICE_NAME", "Obsoletelabs Cloudflare Updater") # Service name for notifications
+service_name = os.environ.get("SERVICE_NAME", "Obsoletelabs Cloudflare Updater")  # Service name for notifications
 logger.info("Service name set to: %s", service_name)
 
 ################################
@@ -85,8 +85,10 @@ def notify_ip_change(old_ip, new_ip, notifyinformation):
         mail_context = {
             "Subject": "IP Address Change Detected for " + service_name,
             "Greeting": f"Message from {service_name},<br>",
-            "Body": f"Your IP address has changed from {old_ip} to {new_ip}. <br><br>Whilst updating zones avaliable to your API token, the updater has got the following information: <br><br>" + notifyinformation_str 
-        } # The body takes in HTML formatting
+            "Body": f"Your IP address has changed from {old_ip} to {new_ip}. "
+            + "<br><br>Whilst updating zones avaliable to your API token, the updater has got the following information: <br><br>"
+            + notifyinformation_str,
+        }  # The body takes in HTML formatting
         send_email(mail_context, eemail.email_to)
         logger.debug("Done sending email notification")
 
@@ -122,7 +124,6 @@ def main():
             logger.warning("IP change detected: %s --> %s", OLD_IP, current_ip)
             # Send notifications if enabled
             # if EXTERNAL_NOTIFIERS:
-            
 
             # Update via Cloudflare API
             notifyinformation = {"Error": "Failed to update IP via Cloudflare API."}
@@ -142,8 +143,8 @@ def main():
 
 # Run main function
 if __name__ == "__main__":
-    #print("################################")
-    #print("#      Service running         #") # STOP PRINTING STUFF TO CONSOLE???? 
-    #print("################################") # ITS BAD FOR THE TREE SOCIETY
+    # print("################################")
+    # print("#      Service running         #") # STOP PRINTING STUFF TO CONSOLE????
+    # print("################################") # ITS BAD FOR THE TREE SOCIETY
     logger.info("Service started.")
     main()

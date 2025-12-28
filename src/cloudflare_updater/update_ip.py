@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 BASE_URL = "https://api.cloudflare.com/client/v4"
 
 
-def cloudflare(api_token: str, old_ip: str, new_ip: str) -> None:
+def cloudflare(api_token: str, old_ip: str, new_ip: str) -> Dict[str, str]:
     """
     Replaces all DNS A records pointing to `old_ip` with `new_ip` across all Cloudflare zones.
 
@@ -127,8 +127,8 @@ def cloudflare(api_token: str, old_ip: str, new_ip: str) -> None:
                     zone_id,
                 )
                 notifyinformation[name] = "403 Forbidden: No permission to update record."
-                return
-        
+                return None
+
             notifyinformation[name] = "Successfully updated."
             resp.raise_for_status()
 
@@ -146,7 +146,7 @@ def cloudflare(api_token: str, old_ip: str, new_ip: str) -> None:
     # ------------------------------------------------------------
     zones = get_all_zones()
     logger.info("Found %i zones.", len(zones))
-    notifyinformation = {}
+    notifyinformation: Dict[str, str] = {}
 
     for zone in zones:
         zone_id = zone["id"]

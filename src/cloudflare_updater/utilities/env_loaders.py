@@ -1,17 +1,16 @@
 """Code to import environment variables and verify them"""
 
+import ipaddress
 import logging
+import socket
 from os import environ
+from urllib.parse import urlparse
 
 import requests
+import tldextract
 
 logger = logging.getLogger(__name__)
 
-from urllib.parse import urlparse
-import tldextract
-import socket
-import requests
-import ipaddress
 
 def is_ip_address(hostname):
     try:
@@ -20,20 +19,24 @@ def is_ip_address(hostname):
     except ValueError:
         return False
 
+
 def parse_url(url):
     parsed = urlparse(url)
     return parsed.scheme, parsed.hostname, parsed.port
+
 
 def has_valid_tld(hostname):
     ext = tldextract.extract(hostname)
     return ext.suffix != ""
 
-def resolves(hostname): 
-    try: 
-        socket.gethostbyname(hostname) 
-        return True 
-    except: 
+
+def resolves(hostname):
+    try:
+        socket.gethostbyname(hostname)
+        return True
+    except (socket.gaierror, OSError):
         return False
+
 
 def try_connect(url):
     try:
@@ -50,7 +53,7 @@ def try_connect(url):
                 logger.debug(ip)
                 break
     except Exception as e:
-        return False, str(e)  
+        return False, str(e)
     else:
         if is_ip_address(ip):
             logger.info("Valid IP found in URL response from %s. Connection successful.", url)
@@ -80,11 +83,12 @@ def test_http_https(assigned_scheme, url_is_ip, hostname, port=None):
             return True, [url], info
     return False, tested_urls, None
 
+
 def validate_url(url):
-    enforce_dns_resolution = ( environ.get("ENFORCE_DNS_RESOLUTION", "false").lower() == "true" )
-    test_connectivity = ( environ.get("TEST_URL_CONNECTIVITY", "true").lower() == "true" )
-    enforce_connectivity = ( environ.get("ENFORCE_URL_CONNECTIVITY", "false").lower() == "true" )
-    enforce_validity = ( environ.get("ENFORCE_URL_VALIDITY", "false").lower() == "true" )
+    enforce_dns_resolution = environ.get("ENFORCE_DNS_RESOLUTION", "false").lower() == "true"
+    test_connectivity = environ.get("TEST_URL_CONNECTIVITY", "true").lower() == "true"
+    enforce_connectivity = environ.get("ENFORCE_URL_CONNECTIVITY", "false").lower() == "true"
+    enforce_validity = environ.get("ENFORCE_URL_VALIDITY", "false").lower() == "true"
 
     result = {
         "valid": True,
@@ -97,25 +101,16 @@ def validate_url(url):
         dns_ok = resolves(hostname)
         # 1. Basic syntax check
         if not hostname:
-            result = {
-                "valid": False, 
-                "reason": "Invalid URL format (No hostname specified)."
-                }
+            result = {"valid": False, "reason": "Invalid URL format (No hostname specified)."}
 
         # 2. TLD check
         elif not has_valid_tld(hostname):
-            result = {
-                "valid": False, 
-                "reason": "Invalid URL format (Invalid or missing TLD)."
-                }
+            result = {"valid": False, "reason": "Invalid URL format (Invalid or missing TLD)."}
 
         # 3. DNS resolution
         elif not dns_ok:
             if enforce_dns_resolution:
-                result = {
-                    "valid": False, 
-                    "reason": "Hostname does not resolve via DNS."
-                    }
+                result = {"valid": False, "reason": "Hostname does not resolve via DNS."}
             else:
                 logger.warning("Hostname %s does not resolve via DNS. ", hostname)
         else:
@@ -123,26 +118,20 @@ def validate_url(url):
                 "valid": True,
                 "reason": "Passed syntax and DNS checks.",
             }
-        
+
     # 4. Optional: try HTTP/HTTPS
     if test_connectivity and result["valid"]:
         ok, working_url, info = test_http_https(scheme, url_is_ip, hostname, port)
 
         if not ok and enforce_connectivity:
-            result = {
-                "valid": False,
-                "reason": "Could not connect via HTTP/HTTPS"
-                }
+            result = {"valid": False, "reason": "Could not connect via HTTP/HTTPS"}
         elif not ok:
             logger.warning("Could not connect to %s via HTTP/HTTPS", hostname)
         elif ok and enforce_validity and info is not None:
-            result = {
-                "valid": False,
-                "reason": f"Connection successful but URL response invalid: {info}"
-                }
+            result = {"valid": False, "reason": f"Connection successful but URL response invalid: {info}"}
         elif ok and info is not None:
             logger.warning("Connection successful but URL response invalid: %s", info)
-            
+
         result["connection_urls"] = working_url
     else:
         result["connection_urls"] = []
@@ -150,18 +139,19 @@ def validate_url(url):
     # Log and return
     if result["valid"]:
         if len(result["connection_urls"]) == 1:
-            logger.info("URL %s validated with connection URL: %s", url, result["connection_urls"][0]) # means either http or https passed, or enforce connectivity is off and the url is an IP.
+            logger.info(
+                "URL %s validated with connection URL: %s", url, result["connection_urls"][0]
+            )  # means either http or https passed, or enforce connectivity is off and the url is an IP.
         elif len(result["connection_urls"]) > 1:
-            logger.info("URL %s validated with multiple connection URLs: %s", url, ", ".join(result["connection_urls"])) # means http and https passed as enforce connectivity is off and neither connected
+            logger.info(
+                "URL %s validated with multiple connection URLs: %s", url, ", ".join(result["connection_urls"])
+            )  # means http and https passed as enforce connectivity is off and neither connected
 
         return result["connection_urls"]
-    
+
     else:
-        logger.error("URL %s validation failed: %s", url, result["reason"]) # Log reason for failure
+        logger.error("URL %s validation failed: %s", url, result["reason"])  # Log reason for failure
         return []
-
-
-
 
 
 def get_cloudflare_api_token():
@@ -203,12 +193,12 @@ def get_whoami_urls():
     # Validate whoami_urls
     output_whoami_urls = []
     for url in whoami_urls:
-        if url != "": # Skip empty entries
+        if url != "":  # Skip empty entries
             if "://" not in url:
                 url = "none://" + url  # default to http if no scheme provided
             valid_urls = validate_url(url)
             output_whoami_urls.extend(valid_urls)
-    
+
     if len(output_whoami_urls) == 0:
         logger.critical("No valid WHOAMI_URLS found after validation. Exiting.")
         return (False, None)

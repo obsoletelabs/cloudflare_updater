@@ -2,23 +2,22 @@
 
 import logging
 import time
-from os import environ
-from smtplib import SMTP, SMTP_SSL
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from email.utils import formatdate
-from email.utils import make_msgid
+from email.utils import formatdate, make_msgid
+from os import environ
+from smtplib import SMTP, SMTP_SSL
 
 logger = logging.getLogger(__name__)
 
 # Environment configuration
-smtp_enabled = environ.get("NOTIFIER_SMTP_ENABLED", "false").lower() == "true" # default to disabled
-smtp_username = environ.get("NOTIFIER_SMTP_USERNAME", "") # apparently I shouldnt fill these with my defaults bc security?
+smtp_enabled = environ.get("NOTIFIER_SMTP_ENABLED", "false").lower() == "true"  # default to disabled
+smtp_username = environ.get("NOTIFIER_SMTP_USERNAME", "")  # apparently I shouldnt fill these with my defaults bc security?
 smtp_password = environ.get("NOTIFIER_SMTP_PASSWORD", "")
-smtp_server = environ.get("NOTIFIER_SMTP_SERVER", "mail.obsoletelabs.net") # default to obsoletelabs mail server because why not
+smtp_server = environ.get("NOTIFIER_SMTP_SERVER", "mail.obsoletelabs.net")  # default to obsoletelabs mail server because why not
 
 smtp_security = environ.get("NOTIFIER_SMTP_SECURITY", "starttls").lower()  # starttls, tls, none
-smtp_port = int( environ.get("NOTIFIER_SMTP_PORT", "0") ) # 0 means auto-detect, I cant convert "None" to int
+smtp_port = int(environ.get("NOTIFIER_SMTP_PORT", "0"))  # 0 means auto-detect, I cant convert "None" to int
 # Determine default port based on security setting
 if smtp_port == 0:
     if smtp_security == "tls":
@@ -78,40 +77,37 @@ def _open_smtp_connection():
 
     return server
 
-def render_email_template(context: dict) -> tuple[str, str, str]:
 
+def render_email_template(context: dict) -> tuple[str, str, str]:
     subject = context.get("Subject", "No Subject")
     greeting = context.get("Greeting", "Hello,")
     body = context.get("Body", "No Content")
     conclusion = context.get("Conclusion", "Regards,<br>Obsoletelabs Notification System")
-    footer = context.get("Footer", "This is an automated message sent by the Obsoletelabs Notification System.<br>We do not control who receives these emails, please contact the sender if you have any questions.")
-    
+    footer = context.get(
+        "Footer",
+        "This is an automated message sent by the Obsoletelabs Notification System."
+        + "<br>We do not control who receives these emails, please contact the sender if you have any questions.",
+    )
+
     # ----- Build HTML body ----- could use markdown2 apparently to make it possible to use markdown?
     body_html = f"""\
 <html>
     <body>
         <p>{greeting}</p><br>
-        <p>{body}</p><br> 
+        <p>{body}</p><br>
         <p>{conclusion}</p>
         <hr>
         <small>{footer}</small>
     </body>
 </html>
-""" 
+"""
 
     # ----- Build plain body ----- and mess with the context (thats why its after)
     greeting = greeting.replace("<br>", "\n").replace("<br/>", "\n").replace("<br />", "\n")
     body = body.replace("<br>", "\n").replace("<br/>", "\n").replace("<br />", "\n")
     conclusion = conclusion.replace("<br>", "\n").replace("<br/>", "\n").replace("<br />", "\n")
     footer = footer.replace("<br>", "\n").replace("<br/>", "\n").replace("<br />", "\n")
-    body_plain = (
-        f"{greeting}\n\n"
-        f"{body}\n\n"
-        f"{conclusion}"
-        "\n\n"
-        "----\n"
-        f"{footer}"
-    )
+    body_plain = f"{greeting}\n\n{body}\n\n{conclusion}\n\n----\n{footer}"
 
     return subject, body_plain, body_html
 
@@ -127,7 +123,6 @@ def send_email_notification(email_context: dict, sendto=None) -> bool:
     # build email message
 
     # ----- Build template parts -----
-    
 
     subject, body_plain, body_html = render_email_template(email_context)
 
@@ -142,29 +137,28 @@ def send_email_notification(email_context: dict, sendto=None) -> bool:
     msg["Message-ID"] = make_msgid()
     msg["Precedence"] = smtp_precedence
 
-
     # Add both versions
     msg.attach(MIMEText(body_plain, "plain"))
     msg.attach(MIMEText(body_html, "html"))
     message = msg.as_string()
 
-#    message = {
-#        "From": email_from,
-#        "To": ", ".join(recipients),
-#        "Date": time.strftime("%a, %d %b %Y %H:%M:%S %z"),
-#        "Subject": subject,
-#        "Body": body
-#    }
-#    message = (
-#f"""From: {message['From']}
-#To: {message['To']}
-#Subject: {message['Subject']}
-#Date: {message['Date']}
-#Content-Type: text/plain; charset="utf-8"
-#
-#{message['Body']}"""
-#    )
-    #message = f"Subject: {subject}\n\n{body}"
+    #    message = {
+    #        "From": email_from,
+    #        "To": ", ".join(recipients),
+    #        "Date": time.strftime("%a, %d %b %Y %H:%M:%S %z"),
+    #        "Subject": subject,
+    #        "Body": body
+    #    }
+    #    message = (
+    # f"""From: {message['From']}
+    # To: {message['To']}
+    # Subject: {message['Subject']}
+    # Date: {message['Date']}
+    # Content-Type: text/plain; charset="utf-8"
+    #
+    # {message['Body']}"""
+    #    )
+    # message = f"Subject: {subject}\n\n{body}"
 
     for attempt in range(1, smtp_retries + 1):
         try:
@@ -176,10 +170,7 @@ def send_email_notification(email_context: dict, sendto=None) -> bool:
             return True
 
         except Exception as e:
-            logger.error(
-                "SMTP attempt %d/%d failed: %s",
-                attempt, smtp_retries, e
-            )
+            logger.error("SMTP attempt %d/%d failed: %s", attempt, smtp_retries, e)
 
             if attempt < smtp_retries:
                 time.sleep(smtp_retry_delay)
