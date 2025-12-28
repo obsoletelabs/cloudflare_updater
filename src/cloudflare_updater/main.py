@@ -18,16 +18,9 @@ from utilities.send_webhooks import send as send_webhooks
 DEBUG_LOGGER_FORMAT = False  # should be disabled for production
 
 # check if colored logging is enabled
-#TODO can this be improved this seems shitty
+# TODO can this be improved this seems shitty
 Invalid_color_config = False
-ENABLE_COLORED_LOGGING = os.environ.get("ENABLE_COLORED_LOGGING", "true").lower()
-if ENABLE_COLORED_LOGGING == "true":
-    ENABLE_COLORED_LOGGING = True
-elif ENABLE_COLORED_LOGGING == "false":
-    ENABLE_COLORED_LOGGING = False
-else:
-    ENABLE_COLORED_LOGGING = True
-    Invalid_color_config = True
+ENABLE_COLORED_LOGGING: bool = env_loaders.parse_bool_env("ENABLE_COLORED_LOGGING", True)
 
 
 # Set up logging, default to INFO level
@@ -35,7 +28,8 @@ LOGGING_LEVEL = os.environ.get("LOG_LEVEL", "INFO").strip().upper()
 
 logger = setup_logger(LOGGING_LEVEL, DEBUG_LOGGER_FORMAT, ENABLE_COLORED_LOGGING)
 
-if Invalid_color_config: logger.warning("ENABLE_COLORED_LOGGING is not set to true or false!")
+if Invalid_color_config:
+    logger.warning("ENABLE_COLORED_LOGGING is not set to true or false!")
 
 # print("################################")
 # print("#          LOAD ENV            #") # STOP PRINTING STUFF TO CONSOLE????

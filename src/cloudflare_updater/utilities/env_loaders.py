@@ -12,6 +12,18 @@ import tldextract
 logger = logging.getLogger(__name__)
 
 
+def parse_bool_env(var: str, default: bool = True) -> bool:
+    val = environ.get(var)
+    if val is None:
+        return default
+    val = val.lower()
+    if val in ("true", "1", "yes"):
+        return True
+    if val in ("false", "0", "no"):
+        return False
+    return default  # fallback
+
+
 def is_ip_address(hostname):
     try:
         ipaddress.ip_address(hostname)

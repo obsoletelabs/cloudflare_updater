@@ -44,7 +44,7 @@ def setup_logger(logging_level: str, debug_logger_format: bool, enable_color: bo
     )
 
     handler = logging.StreamHandler(sys.stdout)
-    if enable_color: 
+    if enable_color:
         handler.setFormatter(formatter)
 
     logging.basicConfig(level=logging.DEBUG, handlers=[handler])
