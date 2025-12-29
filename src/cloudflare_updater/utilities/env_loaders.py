@@ -1,5 +1,6 @@
 """Code to import environment variables and verify them"""
 
+from typing import Tuple, Optional
 import ipaddress
 import logging
 import socket
@@ -13,6 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 def parse_bool_env(var: str, default: bool = True) -> bool:
+    """Grabs a boolean from env"""
     val = environ.get(var)
     if val is None:
         return default
@@ -24,7 +26,8 @@ def parse_bool_env(var: str, default: bool = True) -> bool:
     return default  # fallback
 
 
-def is_ip_address(hostname):
+def is_ip_address(hostname) -> bool:
+    """Checks if it is a valid ip address"""
     try:
         ipaddress.ip_address(hostname)
         return True
@@ -37,12 +40,13 @@ def parse_url(url):
     return parsed.scheme, parsed.hostname, parsed.port
 
 
-def has_valid_tld(hostname):
+def has_valid_tld(hostname: str) -> bool:
     ext = tldextract.extract(hostname)
     return ext.suffix != ""
 
 
-def resolves(hostname):
+def resolves(hostname) -> bool:
+    """Checks if the domain can be resolved to a ip address"""
     try:
         socket.gethostbyname(hostname)
         return True
@@ -50,7 +54,7 @@ def resolves(hostname):
         return False
 
 
-def try_connect(url):
+def try_connect(url: str) -> Tuple[bool, Optional[str]]:
     try:
         result = requests.get(url, timeout=3)
         result.raise_for_status()
@@ -58,9 +62,9 @@ def try_connect(url):
         ip = None
 
         for line in text.split("\n"):
-            if "RemoteAddr" in str(line):
-                line = line.strip("RemoteAddr: ")
-                ip = line.split(":")[0]
+            if "RemoteAddr" in line:
+                line = line.removeprefix("RemoteAddr: ")
+                ip = line.split(":")[0].strip()
 
                 logger.debug(ip)
                 break
@@ -75,7 +79,7 @@ def try_connect(url):
             return True, "Invalid/no IP in URL response."
 
 
-def test_http_https(assigned_scheme, url_is_ip, hostname, port=None):
+def test_http_https(assigned_scheme, url_is_ip: bool, hostname: str, port: Optional[int] = None):
     tested_urls = []
     if url_is_ip:
         schemes = ["http"]

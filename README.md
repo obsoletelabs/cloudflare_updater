@@ -41,10 +41,6 @@ This container does not need any ports bound, as it purely sends outgoing traffi
 
 **SERVICE_NAME:** Pick the name you want email notifications to say they are for. This defaults to ```Obsoletelabs Cloudflare Updater```, but you can change the name for more informational emails.ß
 
-## Discord webhook Notifications
-
-**DISCORD_WEBHOOK_URL:**: This is a discord webhook url that can optionaly be added to send notifications to discord (probably depreciated for a .conf file)
-
 ## SMTP Notifications
 
 Below is the environment imports for the SMTP service. If you dont know how to read it, you probably should set it up. Just get the caps things, set them, or leave them empty if they look like they have suitable defaults.

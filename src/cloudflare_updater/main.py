@@ -11,6 +11,10 @@ from notify.send_email_notification import send_email_notification as send_email
 from setup_logger import setup_logger
 from utilities import env_loaders
 from utilities.send_webhooks import send as send_webhooks
+from utilities import env_handler
+
+
+env = env_handler.Env()
 
 ################################
 #           LOGGING            #
@@ -24,7 +28,8 @@ ENABLE_COLORED_LOGGING: bool = env_loaders.parse_bool_env("ENABLE_COLORED_LOGGIN
 
 
 # Set up logging, default to INFO level
-LOGGING_LEVEL = os.environ.get("LOG_LEVEL", "INFO").strip().upper()
+#LOGGING_LEVEL = os.environ.get("LOG_LEVEL", "INFO").strip().upper()
+LOGGING_LEVEL = env.LOG_LEVEL.strip().upper
 
 logger = setup_logger(LOGGING_LEVEL, DEBUG_LOGGER_FORMAT, ENABLE_COLORED_LOGGING)
 
@@ -35,13 +40,17 @@ if Invalid_color_config:
 # print("#          LOAD ENV            #") # STOP PRINTING STUFF TO CONSOLE????
 # print("################################")
 
+
+
 # Get sleep time from environment variable or use default
-sleep_time = int(os.environ.get("CHECK_INTERVAL_SECONDS", 600))
+#sleep_time = int(os.environ.get("CHECK_INTERVAL_SECONDS", 600))
+sleep_time = env.CHECK_INTERVAL_SECONDS
 logger.info("Check interval set to %s seconds.", sleep_time)
 
 
 # Get retry interval from environment variable or use default
-retry_interval = int(os.environ.get("RETRY_INTERVAL_SECONDS", 10))  # retry interval from environment variable
+#retry_interval = int(os.environ.get("RETRY_INTERVAL_SECONDS", 10))  # retry interval from environment variable
+retry_interval = env.RETRY_INTERVAL_SECONDS
 logger.info("Retry interval set to %s seconds.", retry_interval)
 
 
@@ -66,7 +75,8 @@ else:
 logger.info("Initial IP set to: %s", initial_ip)
 OLD_IP = initial_ip
 
-service_name = os.environ.get("SERVICE_NAME", "Obsoletelabs Cloudflare Updater")  # Service name for notifications
+#service_name = os.environ.get("SERVICE_NAME", "Obsoletelabs Cloudflare Updater")  # Service name for notifications
+service_name = env.SERVICE_NAME
 logger.info("Service name set to: %s", service_name)
 
 ################################
