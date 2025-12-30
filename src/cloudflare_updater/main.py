@@ -11,6 +11,10 @@ from notify.send_email_notification import send_email_notification as send_email
 from setup_logger import setup_logger
 from utilities import env_loaders
 from utilities.send_webhooks import send as send_webhooks
+from utilities import env_handler
+
+
+env = env_handler.Env()
 
 ################################
 #           LOGGING            #
@@ -18,37 +22,15 @@ from utilities.send_webhooks import send as send_webhooks
 DEBUG_LOGGER_FORMAT = False  # should be disabled for production
 
 # check if colored logging is enabled
-# TODO can this be improved this seems shitty
 Invalid_color_config = False
-ENABLE_COLORED_LOGGING: bool = env_loaders.parse_bool_env("ENABLE_COLORED_LOGGING", True)
 
-
-# Set up logging, default to INFO level
-LOGGING_LEVEL = os.environ.get("LOG_LEVEL", "INFO").strip().upper()
-
-logger = setup_logger(LOGGING_LEVEL, DEBUG_LOGGER_FORMAT, ENABLE_COLORED_LOGGING)
+# Set up logging
+LOGGING_LEVEL = env.LOG_LEVEL
+logger = setup_logger(LOGGING_LEVEL, DEBUG_LOGGER_FORMAT, env.ENABLE_COLORED_LOGGING)
 
 if Invalid_color_config:
     logger.warning("ENABLE_COLORED_LOGGING is not set to true or false!")
 
-# print("################################")
-# print("#          LOAD ENV            #") # STOP PRINTING STUFF TO CONSOLE????
-# print("################################")
-
-# Get sleep time from environment variable or use default
-sleep_time = int(os.environ.get("CHECK_INTERVAL_SECONDS", 600))
-logger.info("Check interval set to %s seconds.", sleep_time)
-
-
-# Get retry interval from environment variable or use default
-retry_interval = int(os.environ.get("RETRY_INTERVAL_SECONDS", 10))  # retry interval from environment variable
-logger.info("Retry interval set to %s seconds.", retry_interval)
-
-
-# Get cloudflare api token
-success, CLOUDFLARE_API_TOKEN = env_loaders.get_cloudflare_api_token()
-if not success:
-    exit(1)
 
 # Get whoami urls
 success, WHOAMI_URLS = env_loaders.get_whoami_urls()
@@ -66,7 +48,8 @@ else:
 logger.info("Initial IP set to: %s", initial_ip)
 OLD_IP = initial_ip
 
-service_name = os.environ.get("SERVICE_NAME", "Obsoletelabs Cloudflare Updater")  # Service name for notifications
+#service_name = os.environ.get("SERVICE_NAME", "Obsoletelabs Cloudflare Updater")  # Service name for notifications
+service_name = env.SERVICE_NAME
 logger.info("Service name set to: %s", service_name)
 
 ################################
@@ -123,21 +106,20 @@ def main():
                 logger.info("Current IP: %s", current_ip)
                 found = True
                 break
-            logger.warning("Could not retrieve current IP address, waiting %i seconds.", retry_interval)
-            sleep(retry_interval)
+            logger.warning("Could not retrieve current IP address, waiting %i seconds.", env.RETRY_INTERVAL_SECONDS)
+            sleep(env.RETRY_INTERVAL_SECONDS)
 
         # Compare with OLD_IP and update if changed
         if found and current_ip != OLD_IP:  # if ip has changed
             # Ip change detected
             logger.warning("IP change detected: %s --> %s", OLD_IP, current_ip)
             # Send notifications if enabled
-            # if EXTERNAL_NOTIFIERS:
 
             # Update via Cloudflare API
             notifyinformation = {"Error": "Failed to update IP via Cloudflare API."}
             try:
                 logger.info("Updating IP address via Cloudflare API...")
-                notifyinformation = update_ip.cloudflare(CLOUDFLARE_API_TOKEN, OLD_IP, current_ip)
+                notifyinformation = update_ip.cloudflare(env.CLOUDFLARE_API_TOKEN, OLD_IP, current_ip)
             except Exception as e:
                 logger.critical("Error updating IP address via Cloudflare API: %s", e)
 
@@ -145,14 +127,11 @@ def main():
             OLD_IP = current_ip  # update OLD_IP
             logger.info("Updated IP address to: %s", current_ip)
 
-        logger.info("Sleeping for %s seconds...", sleep_time)
-        sleep(sleep_time)  # wait sleeptime between checks
+        logger.info("Sleeping for %s seconds...", env.CHECK_INTERVAL_SECONDS)
+        sleep(env.CHECK_INTERVAL_SECONDS)  # wait sleeptime between checks
 
 
 # Run main function
 if __name__ == "__main__":
-    # print("################################")
-    # print("#      Service running         #") # STOP PRINTING STUFF TO CONSOLE????
-    # print("################################") # ITS BAD FOR THE TREE SOCIETY
     logger.info("Service started.")
     main()
