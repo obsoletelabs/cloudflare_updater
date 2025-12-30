@@ -31,18 +31,6 @@ logger = setup_logger(LOGGING_LEVEL, DEBUG_LOGGER_FORMAT, env.ENABLE_COLORED_LOG
 if Invalid_color_config:
     logger.warning("ENABLE_COLORED_LOGGING is not set to true or false!")
 
-# print("################################")
-# print("#          LOAD ENV            #") # STOP PRINTING STUFF TO CONSOLE????
-# print("################################")
-
-# Get sleep time from environment variable or use default
-logger.info(f"""
-############ Env Variables ##############
-Check interval set to {env.CHECK_INTERVAL_SECONDS} seconds.
-Retry interval set to {env.RETRY_INTERVAL_SECONDS} seconds.
-
-#########################################
-""")
 
 # Get whoami urls
 success, WHOAMI_URLS = env_loaders.get_whoami_urls()
@@ -126,7 +114,6 @@ def main():
             # Ip change detected
             logger.warning("IP change detected: %s --> %s", OLD_IP, current_ip)
             # Send notifications if enabled
-            # if EXTERNAL_NOTIFIERS:
 
             # Update via Cloudflare API
             notifyinformation = {"Error": "Failed to update IP via Cloudflare API."}
@@ -146,8 +133,5 @@ def main():
 
 # Run main function
 if __name__ == "__main__":
-    # print("################################")
-    # print("#      Service running         #") # STOP PRINTING STUFF TO CONSOLE????
-    # print("################################") # ITS BAD FOR THE TREE SOCIETY
     logger.info("Service started.")
     main()
