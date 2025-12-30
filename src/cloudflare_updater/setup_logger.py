@@ -6,21 +6,8 @@ import sys
 from colorlog import ColoredFormatter
 
 
-def setup_logger(logging_level: str, debug_logger_format: bool, enable_color: bool = True) -> logging.Logger:
+def setup_logger(log_level: int, debug_logger_format: bool, enable_color: bool = True) -> logging.Logger:
     """Creates and returns the logger"""
-    if logging_level == "DEBUG":
-        log_level = logging.DEBUG
-    elif logging_level == "WARNING":
-        log_level = logging.WARNING
-    elif logging_level == "ERROR":
-        log_level = logging.ERROR
-    elif logging_level == "CRITICAL":
-        log_level = logging.CRITICAL
-    else:
-        log_level = logging.INFO
-        logging_level = "INFO"
-
-    # logger setup
 
     formatter = ColoredFormatter(
         "%(log_color)s%(asctime)s [%(levelname)s]%(reset)s %(message_log_color)s%(message)s",
@@ -60,7 +47,7 @@ def setup_logger(logging_level: str, debug_logger_format: bool, enable_color: bo
         logger.critical("critical")
 
     # finish up
-    logger.info("Logging level set to %s", logging_level)  # log the logging level as critical to ensure logged.
+    logger.info("Logging level set to %s", logging.getLevelName(log_level))  # log the logging level as critical to ensure logged.
     logger.setLevel(log_level)
 
     logger.info("Service starting up...")  # log startup

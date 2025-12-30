@@ -5,6 +5,7 @@ from typing import Any, Dict, List
 import notify.webhooks as webhooks
 import yaml
 
+
 logger = logging.getLogger(__name__)
 
 CONFIG_PATH = "/config/webhooks.yml"
