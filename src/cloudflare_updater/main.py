@@ -1,7 +1,6 @@
 """Main.py what more can i say"""
 # pylint: disable=global-statement
 
-import os
 from time import sleep
 
 import notify.send_email_notification as eemail
@@ -9,10 +8,8 @@ import update_ip
 from check_ip import get_ip
 from notify.send_email_notification import send_email_notification as send_email
 from setup_logger import setup_logger
-from utilities import env_loaders
+from utilities import env_handler, env_loaders
 from utilities.send_webhooks import send as send_webhooks
-from utilities import env_handler
-
 
 env = env_handler.Env()
 
@@ -40,15 +37,13 @@ logger.info("Using WHOAMI_URLS: %s", WHOAMI_URLS)
 
 
 # Get the initial IP address, log, and set as OLD_IP
-initial_ip = os.environ.get("INITIAL_IP", None)
-if initial_ip:
+if env.INITIAL_IP:
     logger.warning("Initial IP overwritten by debug value. (Not recemended for production use)")
 else:
-    initial_ip = get_ip(whoami_urls=WHOAMI_URLS)[1]
-logger.info("Initial IP set to: %s", initial_ip)
-OLD_IP = initial_ip
+    env.INITIAL_IP = get_ip(whoami_urls=WHOAMI_URLS)[1]
+logger.info("Initial IP set to: %s", env.INITIAL_IP)
+OLD_IP = env.INITIAL_IP
 
-#service_name = os.environ.get("SERVICE_NAME", "Obsoletelabs Cloudflare Updater")  # Service name for notifications
 service_name = env.SERVICE_NAME
 logger.info("Service name set to: %s", service_name)
 

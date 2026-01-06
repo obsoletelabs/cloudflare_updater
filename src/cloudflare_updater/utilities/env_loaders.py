@@ -1,16 +1,17 @@
 """Code to import environment variables and verify them"""
 
-from typing import Tuple, Optional
 import ipaddress
 import logging
 import socket
 from os import environ
+from typing import Optional, Tuple
 from urllib.parse import urlparse
 
 import requests
 import tldextract
 
 logger = logging.getLogger(__name__)
+
 
 def is_ip_address(hostname) -> bool:
     """Checks if it is a valid ip address"""

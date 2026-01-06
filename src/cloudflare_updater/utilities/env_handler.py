@@ -1,10 +1,11 @@
-import os
 import logging
+import os
 from pathlib import Path
 
 from utilities.value_verifier import is_cloudflare_token_valid
 
 logger = logging.getLogger(__name__)
+
 
 class Env:
     # Required
@@ -22,7 +23,7 @@ class Env:
     ENFORCE_URL_VALIDITY: bool = False
     CHECK_INTERVAL_SECONDS: int = 600
     RETRY_INTERVAL_SECONDS: int = 10
-    
+
     LOG_LEVEL: str = "INFO"
     ENABLE_COLORED_LOGGING: bool = True
 
@@ -38,14 +39,8 @@ class Env:
         str: str,
         list: lambda v: v.split(","),
         Path: lambda v: Path(v),
-
         # NEW: Logging level caster
-        "loglevel": lambda v: (
-            logging._nameToLevel.get(v.upper())
-            if v.upper() in logging._nameToLevel
-            else int(v) if v.isdigit()
-            else None
-        ),
+        "loglevel": lambda v: (logging._nameToLevel.get(v.upper()) if v.upper() in logging._nameToLevel else int(v) if v.isdigit() else None),
     }
 
     def __init__(self):
@@ -69,9 +64,7 @@ class Env:
             if attr == "LOG_LEVEL":
                 level = self.CASTERS["loglevel"](raw)
                 if level is None:
-                    raise EnvironmentError(
-                        f"Invalid LOG_LEVEL: {raw}. Expected DEBUG, INFO, WARNING, ERROR, CRITICAL, or a number."
-                    )
+                    raise EnvironmentError(f"Invalid LOG_LEVEL: {raw}. Expected DEBUG, INFO, WARNING, ERROR, CRITICAL, or a number.")
                 setattr(self, attr, level)
                 continue
 
@@ -82,9 +75,7 @@ class Env:
                 value = caster(raw)
             except Exception:
                 expected = annotation.__name__
-                raise EnvironmentError(
-                    f"Invalid environment variable: {attr}={raw} (expected {expected})"
-                )
+                raise EnvironmentError(f"Invalid environment variable: {attr}={raw} (expected {expected})")
 
             setattr(self, attr, value)
 

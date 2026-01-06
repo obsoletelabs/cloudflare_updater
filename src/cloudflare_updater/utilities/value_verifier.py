@@ -1,5 +1,7 @@
-import requests
 import ipaddress
+
+import requests
+
 
 def is_cloudflare_token_valid(token: str) -> tuple[bool, str]:
     """
@@ -42,6 +44,7 @@ def is_cloudflare_token_valid(token: str) -> tuple[bool, str]:
 
     return True, "Token is valid and active."
 
+
 def is_ip_address(hostname) -> bool:
     """Checks if it is a valid ip address"""
     try:
@@ -49,7 +52,3 @@ def is_ip_address(hostname) -> bool:
         return True
     except ValueError:
         return False
-
-
-
-
