@@ -17,10 +17,12 @@ class Env:
 
     WHOAMI_URLS: list = []
     OVERWRITE_OBSOLETE_WHOAMI: bool = False
+
     ENFORCE_DNS_RESOLUTION: bool = True
     TEST_URL_CONNECTIVITY: bool = True
     ENFORE_URL_CONNECTIVITY: bool = False
     ENFORCE_URL_VALIDITY: bool = False
+    
     CHECK_INTERVAL_SECONDS: int = 600
     RETRY_INTERVAL_SECONDS: int = 10
 

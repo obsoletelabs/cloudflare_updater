@@ -39,10 +39,11 @@ logger.info("Using WHOAMI_URLS: %s", WHOAMI_URLS)
 # Get the initial IP address, log, and set as OLD_IP
 if env.INITIAL_IP:
     logger.warning("Initial IP overwritten by debug value. (Not recemended for production use)")
+    OLD_IP = env.INITIAL_IP
 else:
-    env.INITIAL_IP = get_ip(whoami_urls=WHOAMI_URLS)[1]
+    OLD_IP = get_ip(whoami_urls=WHOAMI_URLS)[1]
 logger.info("Initial IP set to: %s", env.INITIAL_IP)
-OLD_IP = env.INITIAL_IP
+
 
 service_name = env.SERVICE_NAME
 logger.info("Service name set to: %s", service_name)
