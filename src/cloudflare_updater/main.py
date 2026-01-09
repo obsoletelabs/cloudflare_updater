@@ -28,7 +28,6 @@ logger = setup_logger(LOGGING_LEVEL, DEBUG_LOGGER_FORMAT, env.ENABLE_COLORED_LOG
 if Invalid_color_config:
     logger.warning("ENABLE_COLORED_LOGGING is not set to true or false!")
 
-
 # Get whoami urls
 success, WHOAMI_URLS = env_loaders.get_whoami_urls()
 if not success:
@@ -42,7 +41,7 @@ if env.INITIAL_IP:
     OLD_IP = env.INITIAL_IP
 else:
     OLD_IP = get_ip(whoami_urls=WHOAMI_URLS)[1]
-logger.info("Initial IP set to: %s", env.INITIAL_IP)
+logger.info("Initial IP set to: %s", OLD_IP)
 
 
 service_name = env.SERVICE_NAME
