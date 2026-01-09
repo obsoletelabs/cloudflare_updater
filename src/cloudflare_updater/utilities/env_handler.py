@@ -29,6 +29,8 @@ class Env:
     LOG_LEVEL: str = "INFO"
     ENABLE_COLORED_LOGGING: bool = True
 
+    DISABLE_WELCOME_EMAIL: bool = False
+
     SERVICE_NAME: str = "Obsoletelabs Cloudflare Updater"
 
     # Internal use
