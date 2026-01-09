@@ -30,6 +30,14 @@ class Env:
     ENABLE_COLORED_LOGGING: bool = True
 
     DISABLE_WELCOME_EMAIL: bool = False
+    DISABLE_RESTART_EMAIL: bool = False
+
+    NOTIFIER_SMTP_ENABLED: bool = False
+    NOTIFIER_SMTP_SERVER:   str | None = None
+    NOTIFIER_SMTP_USERNAME: str | None = None
+    NOTIFIER_SMTP_PASSWORD: str | None = None
+    NOTIFIER_SMTP_EMAIL_FROM_ADDRESS: str | None = None
+    NITIFIER_SMTP_EMAIL_TO_ADDRESSES: list = []
 
     SERVICE_NAME: str = "Obsoletelabs Cloudflare Updater"
 
