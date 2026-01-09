@@ -40,7 +40,7 @@ if env.INITIAL_IP:
     logger.warning("Initial IP overwritten by debug value. (Not recemended for production use)")
     OLD_IP = env.INITIAL_IP
 else:
-    OLD_IP = get_ip(whoami_urls=WHOAMI_URLS)[1]
+    OLD_IP = get_ip(whoami_urls=WHOAMI_URLS)
 logger.info("Initial IP set to: %s", OLD_IP)
 
 
