@@ -79,6 +79,16 @@ def notify_ip_change(old_ip, new_ip, notifyinformation):
         logger.debug("Done sending email notification")
 
 
+# YOU SAID SOMEWHERE HERE U GO
+
+context = {
+"Subject": "Welcome to the obsoletelabs future, ddns style!",
+"Body": "Context will go here when iceman returns to the office"
+}
+
+if not env.DISABLE_WELCOME_EMAIL:
+    send_email(context, eemail.email_to)
+
 ################################
 #          Main Loop           #
 ################################
