@@ -24,7 +24,7 @@ Invalid_color_config = False
 # Set up logging
 LOGGING_LEVEL = env.LOG_LEVEL
 
-docker_logger = setup_logger(LOGGING_LEVEL, DEBUG_LOGGER_FORMAT, env.ENABLE_COLORED_LOGGING)
+logger = setup_logger(LOGGING_LEVEL, DEBUG_LOGGER_FORMAT, env.ENABLE_COLORED_LOGGING)
 
 # open log file
 
@@ -54,7 +54,7 @@ class systemLogger99:
         with open("logs/logs.txt", "a") as log_file:
         	log_file.write(f"CRITICAL: " + txt) # I dont know how to get the time please add that
 
-logger = systemLogger99()
+#logger = systemLogger99()
 
 if Invalid_color_config:
     logger.warning("ENABLE_COLORED_LOGGING is not set to true or false!")
@@ -149,7 +149,8 @@ def main():
             sleep(env.RETRY_INTERVAL_SECONDS)
 
         # Compare with OLD_IP and update if changed
-        if found and current_ip != OLD_IP:  # if ip has changed
+        #if found and current_ip != OLD_IP:  # if ip has changed
+        if current_ip != OLD_IP:
             # Ip change detected
             logger.warning("IP change detected: %s --> %s", OLD_IP, current_ip)
             # Send notifications if enabled
