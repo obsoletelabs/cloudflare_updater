@@ -23,7 +23,38 @@ Invalid_color_config = False
 
 # Set up logging
 LOGGING_LEVEL = env.LOG_LEVEL
-logger = setup_logger(LOGGING_LEVEL, DEBUG_LOGGER_FORMAT, env.ENABLE_COLORED_LOGGING)
+
+docker_logger = setup_logger(LOGGING_LEVEL, DEBUG_LOGGER_FORMAT, env.ENABLE_COLORED_LOGGING)
+
+# open log file
+
+	
+# TODO: make it so that the logs are persistent somehow (mounting?) also add lastrun and currentrun logfile, plus the infinilogger. 
+first_ever_run_welcome_required = True
+
+class systemLogger99:
+    def debug(self, txt):
+        docker_logger.debug(txt)
+        with open("logs/logs.txt", "a") as log_file:
+        	log_file.write(f"DEBUG: " + txt) # I dont know how to get the time please add that 
+    def info(self, txt):
+        docker_logger.info(txt)
+        with open("logs/logs.txt", "a") as log_file:
+        	log_file.write(f"INFO: " + txt) # I dont know how to get the time please add that
+    def warn(self, txt):
+        docker_logger.warn(txt)
+        with open("logs/logs.txt", "a") as log_file:
+        	log_file.write(f"WARN: " + txt) # I dont know how to get the time please add that
+    def error(self, txt):
+        docker_logger.error(txt)
+        with open("logs/logs.txt", "a") as log_file:
+        	log_file.write(f"ERROR: " + txt) # I dont know how to get the time please add that
+    def critical(self, txt):
+        docker_logger.critical(txt)
+        with open("logs/logs.txt", "a") as log_file:
+        	log_file.write(f"CRITICAL: " + txt) # I dont know how to get the time please add that
+
+logger = systemLogger99()
 
 if Invalid_color_config:
     logger.warning("ENABLE_COLORED_LOGGING is not set to true or false!")
@@ -80,14 +111,17 @@ def notify_ip_change(old_ip, new_ip, notifyinformation):
 
 
 # YOU SAID SOMEWHERE HERE U GO
-
-context = {
-"Subject": "Welcome to the obsoletelabs future, ddns style!",
-"Body": "Context will go here when iceman returns to the office"
-}
-
-if not env.DISABLE_WELCOME_EMAIL:
-    send_email(context, eemail.email_to)
+if first_ever_run_welcome_required:
+    #with omg i was about to get it to paste the logs, but no i will because it is useful 
+	context = {
+	"Subject": "Welcome to your obsoletelabs future, cloudflare dynamic-dns style!",
+	"Body": """Hey there! Welcome! We are happy to have you join us in our cloudflare mayhem. \n In the future we will have more content that will go here, think startup logs, think what settings you have set, and more notably, what issues (not terminal) were found in startup. We might even send the terminal issues too if thats useful. \n Other logs that will exist at some point will be a restart email, which will try tell you what happened to make it restart, of course you can ingore an email like that. We might even have a time per IP recorded in your change IP emails, who knows!!!! For now however, key personell are on holiday, and these features require him to return back to the office, so we will have to give you an idea of what could be to come in the future. Best of luck, worst of luck, heres to your obsoletelabs future!"""
+	}
+	
+	if not env.DISABLE_WELCOME_EMAIL:
+	    send_email(context, eemail.email_to)
+else:
+    logger.critical("OH DEAR GOD THE PROGRAM RESTARTED!!! NO FUTHER CODE WAS WRITTEN TO HANDLE IT?")
 
 ################################
 #          Main Loop           #
@@ -104,12 +138,12 @@ def main():
         logger.info("Checking for IP address change...")
 
         # Get current IP address with retries
-        found = False  # TODO iceman can you see if this is actually needed anymore?
-        while not found:
+        #found = False  # TODO iceman can you see if this is actually needed anymore? good point, not anymore. a while True is better than a while not found lol
+        while True: #not found:
             current_ip = get_ip(whoami_urls=WHOAMI_URLS)  # grab the current ip address
             if current_ip is not None:
                 logger.info("Current IP: %s", current_ip)
-                found = True
+                #found = True
                 break
             logger.warning("Could not retrieve current IP address, waiting %i seconds.", env.RETRY_INTERVAL_SECONDS)
             sleep(env.RETRY_INTERVAL_SECONDS)
