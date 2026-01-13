@@ -12,6 +12,7 @@ from utilities import env_handler, env_loaders
 from utilities.send_webhooks import send as send_webhooks
 
 env = env_handler.Env()
+init_email_context = []
 
 ################################
 #           LOGGING            #
@@ -58,25 +59,30 @@ class systemLogger99:
 
 if Invalid_color_config:
     logger.warning("ENABLE_COLORED_LOGGING is not set to true or false!")
+    init_email_context.append("Warning: ENABLE_COLORED_LOGGING is not set to true or false!")
 
 # Get whoami urls
 success, WHOAMI_URLS = env_loaders.get_whoami_urls()
 if not success:
     exit(1)
 logger.info("Using WHOAMI_URLS: %s", WHOAMI_URLS)
+init_email_context.append("INFO: Using WHOAMI_URLS: %s", WHOAMI_URLS)
 
 
 # Get the initial IP address, log, and set as OLD_IP
 if env.INITIAL_IP:
     logger.warning("Initial IP overwritten by debug value. (Not recemended for production use)")
+    init_email_context.append("WARNING: Initial IP overwritten by debug value. (Not recemended for production use)")
     OLD_IP = env.INITIAL_IP
 else:
     OLD_IP = get_ip(whoami_urls=WHOAMI_URLS)
 logger.info("Initial IP set to: %s", OLD_IP)
+init_email_context.append("INFO: Initial IP set to: %s", OLD_IP)
 
 
 service_name = env.SERVICE_NAME
 logger.info("Service name set to: %s", service_name)
+init_email_context.append("INFO: Service name set to: %s", service_name)
 
 ################################
 #           Notify             #
@@ -84,6 +90,7 @@ logger.info("Service name set to: %s", service_name)
 enable_email_notifications = False
 if eemail.smtp_enabled:
     logger.info("SMTP Notifier is enabled.")
+    init_email_context.append("INFO: SMTP Notifier is enabled.")
     enable_email_notifications = True
 
 
@@ -112,10 +119,13 @@ def notify_ip_change(old_ip, new_ip, notifyinformation):
 
 # YOU SAID SOMEWHERE HERE U GO
 if first_ever_run_welcome_required:
-    #with omg i was about to get it to paste the logs, but no i will because it is useful 
+    #with omg i was about to get it to paste the logs, but no i will because it is useful  
+    additional_con = ""
+    for item in init_email_context:
+        additional_con = additional_con + "\n" + item
 	context = {
-	"Subject": ("Welcome to your obsoletelabs future, cloudflare dynamic-dns style! IP: %s", OLD_IP),
-	"Body": """Hey there! Welcome! We are happy to have you join us in our cloudflare mayhem. \n In the future we will have more content that will go here, think startup logs, think what settings you have set, and more notably, what issues (not terminal) were found in startup. We might even send the terminal issues too if thats useful. \n Other logs that will exist at some point will be a restart email, which will try tell you what happened to make it restart, of course you can ingore an email like that. We might even have a time per IP recorded in your change IP emails, who knows!!!! For now however, key personell are on holiday, and these features require him to return back to the office, so we will have to give you an idea of what could be to come in the future. Best of luck, worst of luck, heres to your obsoletelabs future!"""
+	"Subject": "Welcome to your obsoletelabs future, cloudflare dynamic-dns style!",
+	"Body": f"Hey there! Welcome! We are happy to have you join us in our cloudflare mayhem. \n In the future we will have more content that will go here, think startup logs, think what settings you have set, and more notably, what issues (not terminal) were found in startup. We might even send the terminal issues too if thats useful. \n Other logs that will exist at some point will be a restart email, which will try tell you what happened to make it restart, of course you can ingore an email like that. We might even have a time per IP recorded in your change IP emails, who knows!!!! For now however, key personell are on holiday, and these features require him to return back to the office, so we will have to give you an idea of what could be to come in the future. Best of luck, worst of luck, heres to your obsoletelabs future! \n\n\n Startup notes: \n{additional_con}"
 	}
 	
 	if not env.DISABLE_WELCOME_EMAIL:
