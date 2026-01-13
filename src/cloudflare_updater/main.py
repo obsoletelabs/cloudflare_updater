@@ -66,7 +66,7 @@ success, WHOAMI_URLS = env_loaders.get_whoami_urls()
 if not success:
     exit(1)
 logger.info("Using WHOAMI_URLS: %s", WHOAMI_URLS)
-init_email_submessage = "INFO: Using WHOAMI_URLS: %s", WHOAMI_URLS
+init_email_submessage = f"INFO: Using WHOAMI_URLS: {WHOAMI_URLS}"
 init_email_context.append(init_email_submessage)
 
 
@@ -78,13 +78,13 @@ if env.INITIAL_IP:
 else:
     OLD_IP = get_ip(whoami_urls=WHOAMI_URLS)
 logger.info("Initial IP set to: %s", OLD_IP)
-init_email_submessage = "INFO: Initial IP set to: %s", OLD_IP
+init_email_submessage = f"INFO: Initial IP set to: {OLD_IP}"
 init_email_context.append(init_email_submessage)
 
 
 service_name = env.SERVICE_NAME
 logger.info("Service name set to: %s", service_name)
-init_email_submessage = "INFO: Service name set to: %s", service_name
+init_email_submessage = f"INFO: Service name set to: service_name"
 init_email_context.append(init_email_submessage)
 
 ################################
@@ -125,7 +125,7 @@ if first_ever_run_welcome_required:
     #with omg i was about to get it to paste the logs, but no i will because it is useful  
     additional_con = ""
     for item in init_email_context:
-        additional_con = additional_con + "\n" + item
+        additional_con = additional_con + "\n" + str(item)
     context = {
 	"Subject": "Welcome to your obsoletelabs future, cloudflare dynamic-dns style!",
 	"Body": f"Hey there! Welcome! We are happy to have you join us in our cloudflare mayhem. \n In the future we will have more content that will go here, think startup logs, think what settings you have set, and more notably, what issues (not terminal) were found in startup. We might even send the terminal issues too if thats useful. \n Other logs that will exist at some point will be a restart email, which will try tell you what happened to make it restart, of course you can ingore an email like that. We might even have a time per IP recorded in your change IP emails, who knows!!!! For now however, key personell are on holiday, and these features require him to return back to the office, so we will have to give you an idea of what could be to come in the future. Best of luck, worst of luck, heres to your obsoletelabs future! \n\n\n Startup notes: \n{additional_con}"
