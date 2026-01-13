@@ -2,6 +2,7 @@
 
 import logging
 import sys
+from main import init_email_context
 
 from colorlog import ColoredFormatter
 
@@ -58,6 +59,7 @@ def setup_logger(log_level: str, debug_logger_format: bool, enable_color: bool =
 
     # finish up
     logger.info("Logging level set to %s", logging.getLevelName(log_level))  # log the logging level as critical to ensure logged.
+    init_email_context.append(f"Logging level set to {logging.getLevelName(log_level)}")
     #logger.setLevel(log_level)
 
     logger.info("Service starting up...")  # log startup
