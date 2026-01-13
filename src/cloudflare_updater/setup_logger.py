@@ -1,11 +1,14 @@
 """Setup a logger for the project"""
 
 import logging
+import logging.handlers
 import sys
 
 from colorlog import ColoredFormatter
 
 def setup_logger(log_level: str, debug_logger_format: bool, enable_color: bool = True) -> logging.Logger:
+    LOGFILE = "/config/log.txt"
+
     """Creates and returns the logger"""
     match log_level:
         case "DEBUG":
@@ -40,11 +43,18 @@ def setup_logger(log_level: str, debug_logger_format: bool, enable_color: bool =
         },
     )
 
+    file_formatter = logging.Formatter( "%(asctime)s | %(name)-24s | %(levelname)-8s | %(message)s" )
+
     handler = logging.StreamHandler(sys.stdout)
     if enable_color:
         handler.setFormatter(formatter)
+    
+    file_handler = logging.handlers.RotatingFileHandler(
+    LOGFILE, maxBytes=(1048576*5), backupCount=7
+    )
+    file_handler.setFormatter(file_formatter)
 
-    logging.basicConfig(level=log_level, handlers=[handler])
+    logging.basicConfig(level=log_level, handlers=[handler, file_handler])
 
     logger = logging.getLogger(__name__)
 
