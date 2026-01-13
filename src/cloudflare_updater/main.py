@@ -123,13 +123,13 @@ if first_ever_run_welcome_required:
     additional_con = ""
     for item in init_email_context:
         additional_con = additional_con + "\n" + item
-	context = {
+    context = {
 	"Subject": "Welcome to your obsoletelabs future, cloudflare dynamic-dns style!",
 	"Body": f"Hey there! Welcome! We are happy to have you join us in our cloudflare mayhem. \n In the future we will have more content that will go here, think startup logs, think what settings you have set, and more notably, what issues (not terminal) were found in startup. We might even send the terminal issues too if thats useful. \n Other logs that will exist at some point will be a restart email, which will try tell you what happened to make it restart, of course you can ingore an email like that. We might even have a time per IP recorded in your change IP emails, who knows!!!! For now however, key personell are on holiday, and these features require him to return back to the office, so we will have to give you an idea of what could be to come in the future. Best of luck, worst of luck, heres to your obsoletelabs future! \n\n\n Startup notes: \n{additional_con}"
 	}
 	
-	if not env.DISABLE_WELCOME_EMAIL:
-	    send_email(context, eemail.email_to)
+    if not env.DISABLE_WELCOME_EMAIL:
+        send_email(context, eemail.email_to)
 else:
     logger.critical("OH DEAR GOD THE PROGRAM RESTARTED!!! NO FUTHER CODE WAS WRITTEN TO HANDLE IT?")
 
