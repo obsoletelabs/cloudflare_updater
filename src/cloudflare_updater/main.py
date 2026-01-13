@@ -66,7 +66,8 @@ success, WHOAMI_URLS = env_loaders.get_whoami_urls()
 if not success:
     exit(1)
 logger.info("Using WHOAMI_URLS: %s", WHOAMI_URLS)
-init_email_context.append("INFO: Using WHOAMI_URLS: %s", WHOAMI_URLS)
+init_email_submessage = "INFO: Using WHOAMI_URLS: %s", WHOAMI_URLS
+init_email_context.append(init_email_submessage)
 
 
 # Get the initial IP address, log, and set as OLD_IP
@@ -77,12 +78,14 @@ if env.INITIAL_IP:
 else:
     OLD_IP = get_ip(whoami_urls=WHOAMI_URLS)
 logger.info("Initial IP set to: %s", OLD_IP)
-init_email_context.append("INFO: Initial IP set to: %s", OLD_IP)
+init_email_submessage = "INFO: Initial IP set to: %s", OLD_IP
+init_email_context.append(init_email_submessage)
 
 
 service_name = env.SERVICE_NAME
 logger.info("Service name set to: %s", service_name)
-init_email_context.append("INFO: Service name set to: %s", service_name)
+init_email_submessage = "INFO: Service name set to: %s", service_name
+init_email_context.append(init_email_submessage)
 
 ################################
 #           Notify             #
