@@ -114,7 +114,7 @@ def notify_ip_change(old_ip, new_ip, notifyinformation):
 if first_ever_run_welcome_required:
     #with omg i was about to get it to paste the logs, but no i will because it is useful 
 	context = {
-	"Subject": "Welcome to your obsoletelabs future, cloudflare dynamic-dns style!",
+	"Subject": ("Welcome to your obsoletelabs future, cloudflare dynamic-dns style! IP: %s", OLD_IP),
 	"Body": """Hey there! Welcome! We are happy to have you join us in our cloudflare mayhem. \n In the future we will have more content that will go here, think startup logs, think what settings you have set, and more notably, what issues (not terminal) were found in startup. We might even send the terminal issues too if thats useful. \n Other logs that will exist at some point will be a restart email, which will try tell you what happened to make it restart, of course you can ingore an email like that. We might even have a time per IP recorded in your change IP emails, who knows!!!! For now however, key personell are on holiday, and these features require him to return back to the office, so we will have to give you an idea of what could be to come in the future. Best of luck, worst of luck, heres to your obsoletelabs future!"""
 	}
 	
