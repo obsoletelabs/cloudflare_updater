@@ -27,6 +27,7 @@ class Env:
     RETRY_INTERVAL_SECONDS: int = 10
 
     LOG_LEVEL: str = "INFO"
+    MAX_LOG_BYTES: int = 50*1000*1000 # 50mb
     ENABLE_COLORED_LOGGING: bool = True
 
     DISABLE_WELCOME_EMAIL: bool = False

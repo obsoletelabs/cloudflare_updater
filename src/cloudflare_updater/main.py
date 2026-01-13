@@ -19,13 +19,15 @@ init_email_context = []
 ################################
 DEBUG_LOGGER_FORMAT = False  # should be disabled for production
 
+LOG_FILE_PATH = "/config/log.txt"
+
 # check if colored logging is enabled
 Invalid_color_config = False
 
 # Set up logging
 LOGGING_LEVEL = env.LOG_LEVEL
 
-logger = setup_logger(LOGGING_LEVEL, DEBUG_LOGGER_FORMAT, env.ENABLE_COLORED_LOGGING)
+logger = setup_logger(log_level=LOGGING_LEVEL, debug_logger_format=DEBUG_LOGGER_FORMAT, enable_color=env.ENABLE_COLORED_LOGGING, LogFilePath=LOG_FILE_PATH, MaxLogfileSizeBytes=env.MAX_LOG_BYTES)
 
 # open log file
 

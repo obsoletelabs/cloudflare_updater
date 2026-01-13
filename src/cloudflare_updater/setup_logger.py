@@ -7,10 +7,9 @@ import sys
 
 from colorlog import ColoredFormatter
 
-def setup_logger(log_level: str, debug_logger_format: bool, enable_color: bool = True) -> logging.Logger:
-    LOGFILE = "/config/log.txt"
-
+def setup_logger(log_level: str, debug_logger_format: bool, LogFilePath: str, MaxLogfileSizeBytes: int, enable_color: bool = True) -> logging.Logger:
     """Creates and returns the logger"""
+    
     match log_level:
         case "DEBUG":
             log_level = logging.DEBUG
@@ -51,7 +50,7 @@ def setup_logger(log_level: str, debug_logger_format: bool, enable_color: bool =
         handler.setFormatter(formatter)
     
     file_handler = logging.handlers.RotatingFileHandler(
-    LOGFILE, maxBytes=(1048576*5), backupCount=7
+    LogFilePath, maxBytes=(MaxLogfileSizeBytes), backupCount=7
     )
     file_handler.setFormatter(file_formatter)
 

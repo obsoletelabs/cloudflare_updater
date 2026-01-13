@@ -37,6 +37,10 @@ This container does not need any ports bound, as it purely sends outgoing traffi
 
 **LOG_LEVEL:** This lets you set the logging level of the output. Valid options are debug, info, warning, error, critical. This defaults to info, and we do not recommend changing this.
 
+**MAX_LOG_BYTES** The amount of bytes before the log file starts overwritting its self.
+
+**TODO add docs for the color logging**
+
 **INITIAL_IP:** This lets you set a predetermined initial IP address for the system to use. This can be used to verify it changes the records you expect it to alter without having to wait for your ip address to change. This will set itself to your current ip as determined by the WHOAMI URLs if not set.
 
 **SERVICE_NAME:** Pick the name you want email notifications to say they are for. This defaults to ```Obsoletelabs Cloudflare Updater```, but you can change the name for more informational emails.ß
