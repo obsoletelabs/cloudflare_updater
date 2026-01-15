@@ -13,6 +13,8 @@ from utilities.send_webhooks import send as send_webhooks
 env = env_handler.Env()
 init_email_context = []
 
+VERSION = "1.0.0"
+
 ################################
 #           LOGGING            #
 ################################
