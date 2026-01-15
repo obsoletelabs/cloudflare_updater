@@ -48,7 +48,7 @@ def setup_logger(
         },
     )
 
-    file_formatter = logging.Formatter("%(asctime)s | %(name)-24s | %(levelname)-8s | %(message)s")
+    file_formatter = logging.Formatter("%(asctime)s | %(levelname)-8s | %(name)-30s | %(message)s")
 
     handler = logging.StreamHandler(sys.stdout)
     if enable_color:
