@@ -22,19 +22,19 @@ class Env:
     TEST_URL_CONNECTIVITY: bool = True
     ENFORE_URL_CONNECTIVITY: bool = False
     ENFORCE_URL_VALIDITY: bool = False
-    
+
     CHECK_INTERVAL_SECONDS: int = 600
     RETRY_INTERVAL_SECONDS: int = 10
 
     LOG_LEVEL: str = "INFO"
-    MAX_LOG_BYTES: int = 50*1000*1000 # 50mb
+    MAX_LOG_BYTES: int = 50 * 1000 * 1000  # 50mb
     ENABLE_COLORED_LOGGING: bool = True
 
     DISABLE_WELCOME_EMAIL: bool = False
     DISABLE_RESTART_EMAIL: bool = False
 
     NOTIFIER_SMTP_ENABLED: bool = False
-    NOTIFIER_SMTP_SERVER:   str | None = None
+    NOTIFIER_SMTP_SERVER: str | None = None
     NOTIFIER_SMTP_USERNAME: str | None = None
     NOTIFIER_SMTP_PASSWORD: str | None = None
     NOTIFIER_SMTP_EMAIL_FROM_ADDRESS: str | None = None

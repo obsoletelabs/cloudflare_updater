@@ -27,37 +27,20 @@ Invalid_color_config = False
 # Set up logging
 LOGGING_LEVEL = env.LOG_LEVEL
 
-logger = setup_logger(log_level=LOGGING_LEVEL, debug_logger_format=DEBUG_LOGGER_FORMAT, enable_color=env.ENABLE_COLORED_LOGGING, LogFilePath=LOG_FILE_PATH, MaxLogfileSizeBytes=env.MAX_LOG_BYTES)
+logger = setup_logger(
+    log_level=LOGGING_LEVEL,
+    debug_logger_format=DEBUG_LOGGER_FORMAT,
+    enable_color=env.ENABLE_COLORED_LOGGING,
+    LogFilePath=LOG_FILE_PATH,
+    MaxLogfileSizeBytes=env.MAX_LOG_BYTES,
+)
 
 # open log file
 
-	
-# TODO: make it so that the logs are persistent somehow (mounting?) also add lastrun and currentrun logfile, plus the infinilogger. 
+
+# TODO: make it so that the logs are persistent somehow (mounting?) also add lastrun and currentrun logfile, plus the infinilogger.
 first_ever_run_welcome_required = True
 
-class systemLogger99:
-    def debug(self, txt):
-        docker_logger.debug(txt)
-        with open("logs/logs.txt", "a") as log_file:
-        	log_file.write(f"DEBUG: " + txt) # I dont know how to get the time please add that 
-    def info(self, txt):
-        docker_logger.info(txt)
-        with open("logs/logs.txt", "a") as log_file:
-        	log_file.write(f"INFO: " + txt) # I dont know how to get the time please add that
-    def warn(self, txt):
-        docker_logger.warn(txt)
-        with open("logs/logs.txt", "a") as log_file:
-        	log_file.write(f"WARN: " + txt) # I dont know how to get the time please add that
-    def error(self, txt):
-        docker_logger.error(txt)
-        with open("logs/logs.txt", "a") as log_file:
-        	log_file.write(f"ERROR: " + txt) # I dont know how to get the time please add that
-    def critical(self, txt):
-        docker_logger.critical(txt)
-        with open("logs/logs.txt", "a") as log_file:
-        	log_file.write(f"CRITICAL: " + txt) # I dont know how to get the time please add that
-
-#logger = systemLogger99()
 
 if Invalid_color_config:
     logger.warning("ENABLE_COLORED_LOGGING is not set to true or false!")
@@ -124,15 +107,21 @@ def notify_ip_change(old_ip, new_ip, notifyinformation):
 
 # YOU SAID SOMEWHERE HERE U GO
 if first_ever_run_welcome_required:
-    #with omg i was about to get it to paste the logs, but no i will because it is useful  
-    additional_con = ""
-    for item in init_email_context:
-        additional_con = additional_con + "<br>" + str(item)
+    # Build HTML-formatted startup notes
+    additional_con = "<br>".join(str(item) for item in init_email_context)
+
     context = {
-	"Subject": "Welcome to your obsoletelabs future, cloudflare dynamic-dns style!",
-	"Body": f"Hey there! Welcome! We are happy to have you join us in our cloudflare mayhem. <br> Currently we have a key personell on holiday, and these startup emails require him to return back to the office, so we will have to give you an idea of what could be to come in our obsolete future. <br> Best of luck, worst of luck, heres to your obsoletelabs future! <br><br><br> Startup notes: <br>{additional_con}"
-	}
-	
+        "Subject": "Welcome to your obsoletelabs future, cloudflare dynamic-dns style!",
+        "Body": (
+            "Hey there! Welcome! We are happy to have you join us in our cloudflare mayhem. <br>"
+            " Currently we have a key personell on holiday, and these startup emails require him to return back to the office, "
+            "so we will have to give you an idea of what could be to come in our obsolete future. <br>"
+            " Best of luck, worst of luck, heres to your obsoletelabs future! <br><br><br>"
+            " Startup notes: <br>"
+            f"{additional_con}"
+        ),
+    }
+
     if not env.DISABLE_WELCOME_EMAIL:
         send_email(context, eemail.email_to)
 else:
@@ -152,19 +141,15 @@ def main():
     while True:
         logger.info("Checking for IP address change...")
 
-        # Get current IP address with retries
-        #found = False  # TODO iceman can you see if this is actually needed anymore? good point, not anymore. a while True is better than a while not found lol
-        while True: #not found:
+        while True:
             current_ip = get_ip(whoami_urls=WHOAMI_URLS)  # grab the current ip address
             if current_ip is not None:
                 logger.info("Current IP: %s", current_ip)
-                #found = True
                 break
             logger.warning("Could not retrieve current IP address, waiting %i seconds.", env.RETRY_INTERVAL_SECONDS)
             sleep(env.RETRY_INTERVAL_SECONDS)
 
         # Compare with OLD_IP and update if changed
-        #if found and current_ip != OLD_IP:  # if ip has changed
         if current_ip != OLD_IP:
             # Ip change detected
             logger.warning("IP change detected: %s --> %s", OLD_IP, current_ip)

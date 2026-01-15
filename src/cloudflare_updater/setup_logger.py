@@ -3,13 +3,16 @@
 import logging
 import logging.handlers
 import sys
-#from main import init_email_context
 
+# from main import init_email_context
 from colorlog import ColoredFormatter
 
-def setup_logger(log_level: str, debug_logger_format: bool, LogFilePath: str, MaxLogfileSizeBytes: int, enable_color: bool = True) -> logging.Logger:
+
+def setup_logger(
+    log_level: str | int, debug_logger_format: bool, LogFilePath: str, MaxLogfileSizeBytes: int, enable_color: bool = True
+) -> logging.Logger:
     """Creates and returns the logger"""
-    
+
     match log_level:
         case "DEBUG":
             log_level = logging.DEBUG
@@ -21,6 +24,8 @@ def setup_logger(log_level: str, debug_logger_format: bool, LogFilePath: str, Ma
             log_level = logging.ERROR
         case "CRITICAL":
             log_level = logging.CRITICAL
+        case int() as lvl:
+            log_level = lvl
 
     formatter = ColoredFormatter(
         "%(log_color)s%(asctime)s [%(levelname)s]%(reset)s %(message_log_color)s%(message)s",
@@ -43,15 +48,13 @@ def setup_logger(log_level: str, debug_logger_format: bool, LogFilePath: str, Ma
         },
     )
 
-    file_formatter = logging.Formatter( "%(asctime)s | %(name)-24s | %(levelname)-8s | %(message)s" )
+    file_formatter = logging.Formatter("%(asctime)s | %(name)-24s | %(levelname)-8s | %(message)s")
 
     handler = logging.StreamHandler(sys.stdout)
     if enable_color:
         handler.setFormatter(formatter)
-    
-    file_handler = logging.handlers.RotatingFileHandler(
-    LogFilePath, maxBytes=(MaxLogfileSizeBytes), backupCount=7
-    )
+
+    file_handler = logging.handlers.RotatingFileHandler(LogFilePath, maxBytes=(MaxLogfileSizeBytes), backupCount=7)
     file_handler.setFormatter(file_formatter)
 
     logging.basicConfig(level=log_level, handlers=[handler, file_handler])
@@ -68,8 +71,8 @@ def setup_logger(log_level: str, debug_logger_format: bool, LogFilePath: str, Ma
 
     # finish up
     logger.info("Logging level set to %s", logging.getLevelName(log_level))  # log the logging level as critical to ensure logged.
-    #init_email_context.append(f"Logging level set to {logging.getLevelName(log_level)}")
-    #logger.setLevel(log_level)
+    # init_email_context.append(f"Logging level set to {logging.getLevelName(log_level)}")
+    # logger.setLevel(log_level)
 
     logger.info("Service starting up...")  # log startup
     return logger
