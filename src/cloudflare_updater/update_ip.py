@@ -1,7 +1,6 @@
-"""A library that uses Cloudflare's API to find and replace all IP addresses."""
-
 import logging
-from typing import Any, Dict, List
+import time
+from typing import Any, Dict, List, Optional
 
 import requests
 
@@ -13,12 +12,9 @@ BASE_URL = "https://api.cloudflare.com/client/v4"
 def cloudflare(api_token: str, old_ip: str, new_ip: str) -> Dict[str, str]:
     """
     Replaces all DNS A records pointing to `old_ip` with `new_ip` across all Cloudflare zones.
-
-    Args:
-        api_token (str): Cloudflare API Token with DNS edit permissions.
-        old_ip (str): The IP address to search for.
-        new_ip (str): The new IP address to replace with.
+    Includes retry logic, rate-limit handling, and exponential backoff.
     """
+
     if new_ip == "0.0.0.0" or new_ip is None:
         raise ValueError("CRITICAL: Attempted to set domains to 0.0.0.0")
 
@@ -30,6 +26,92 @@ def cloudflare(api_token: str, old_ip: str, new_ip: str) -> Dict[str, str]:
     }
 
     # ------------------------------------------------------------
+    # Unified request wrapper with retries + rate limit handling
+    # ------------------------------------------------------------
+    def cf_request(
+        method: str,
+        url: str,
+        *,
+        params: Optional[Dict[str, Any]] = None,
+        json: Optional[Dict[str, Any]] = None,
+        max_retries: int = 5,
+        timeout: int = 5,
+    ) -> Optional[requests.Response]:
+
+        backoff = 1.0
+
+        for attempt in range(1, max_retries + 1):
+            try:
+                resp = requests.request(
+                    method,
+                    url,
+                    headers=headers,
+                    params=params,
+                    json=json,
+                    timeout=timeout,
+                )
+
+                # -------------------------
+                # Handle rate limits (429)
+                # -------------------------
+                if resp.status_code == 429:
+                    retry_after = resp.headers.get("Retry-After")
+                    wait = float(retry_after) if retry_after else backoff
+                    logger.warning(
+                        "Rate limited (429). Waiting %.2f seconds before retry %d/%d.",
+                        wait,
+                        attempt,
+                        max_retries,
+                    )
+                    time.sleep(wait)
+                    backoff *= 2
+                    continue
+
+                # -------------------------
+                # Retry on transient 5xx
+                # -------------------------
+                if 500 <= resp.status_code < 600:
+                    logger.warning(
+                        "Cloudflare server error %d. Retrying %d/%d after %.2fs.",
+                        resp.status_code,
+                        attempt,
+                        max_retries,
+                        backoff,
+                    )
+                    time.sleep(backoff)
+                    backoff *= 2
+                    continue
+
+                # -------------------------
+                # 4xx (except 429) are permanent errors
+                # -------------------------
+                if 400 <= resp.status_code < 500:
+                    logger.error(
+                        "Permanent client error %d on %s %s. Not retrying.",
+                        resp.status_code,
+                        method,
+                        url,
+                    )
+                    return resp
+
+                # Success
+                return resp
+
+            except requests.RequestException as e:
+                logger.warning(
+                    "Network error on attempt %d/%d: %s. Retrying after %.2fs.",
+                    attempt,
+                    max_retries,
+                    str(e),
+                    backoff,
+                )
+                time.sleep(backoff)
+                backoff *= 2
+
+        logger.error("Max retries exceeded for %s %s", method, url)
+        return None
+
+    # ------------------------------------------------------------
     # Fetch all zones
     # ------------------------------------------------------------
     def get_all_zones() -> List[Dict[str, Any]]:
@@ -37,15 +119,18 @@ def cloudflare(api_token: str, old_ip: str, new_ip: str) -> Dict[str, str]:
         page = 1
 
         while True:
-            resp = requests.get(
+            resp = cf_request(
+                "GET",
                 f"{BASE_URL}/zones",
-                headers=headers,
                 params={"page": str(page), "per_page": "50"},
-                timeout=3,
             )
 
+            if resp is None:
+                logger.error("Failed to fetch zones after retries.")
+                break
+
             if resp.status_code == 403:
-                logger.warning("403 Forbidden: You don't have access to some zones, skipping...")
+                logger.warning("403 Forbidden: Cannot access some zones, skipping...")
                 break
 
             resp.raise_for_status()
@@ -59,7 +144,6 @@ def cloudflare(api_token: str, old_ip: str, new_ip: str) -> Dict[str, str]:
             page += 1
 
         logger.info("Fetched %i zones from Cloudflare.", len(zones))
-        logger.debug("Zones: %s", zones)
         return zones
 
     # ------------------------------------------------------------
@@ -70,12 +154,15 @@ def cloudflare(api_token: str, old_ip: str, new_ip: str) -> Dict[str, str]:
         page = 1
 
         while True:
-            resp = requests.get(
+            resp = cf_request(
+                "GET",
                 f"{BASE_URL}/zones/{zone_id}/dns_records",
-                headers=headers,
                 params={"page": str(page), "per_page": "100", "type": "A"},
-                timeout=3,
             )
+
+            if resp is None:
+                logger.error("Failed to fetch DNS records for zone %s.", zone_id)
+                break
 
             if resp.status_code == 403:
                 logger.warning("403 Forbidden: No permission for zone %s, skipping...", zone_id)
@@ -91,7 +178,6 @@ def cloudflare(api_token: str, old_ip: str, new_ip: str) -> Dict[str, str]:
             page += 1
 
         logger.info("Fetched %i A records for zone %s.", len(records), zone_id)
-        logger.debug("Records for zone %s: %s", zone_id, records)
         return records
 
     # ------------------------------------------------------------
@@ -104,6 +190,7 @@ def cloudflare(api_token: str, old_ip: str, new_ip: str) -> Dict[str, str]:
         ttl: int,
         proxied: bool,
     ) -> None:
+
         payload = {
             "type": "A",
             "name": name.strip(),
@@ -112,40 +199,30 @@ def cloudflare(api_token: str, old_ip: str, new_ip: str) -> Dict[str, str]:
             "proxied": proxied,
         }
 
-        try:
-            resp = requests.put(
-                f"{BASE_URL}/zones/{zone_id}/dns_records/{record_id}",
-                headers=headers,
-                json=payload,
-                timeout=3,
-            )
+        resp = cf_request(
+            "PUT",
+            f"{BASE_URL}/zones/{zone_id}/dns_records/{record_id}",
+            json=payload,
+        )
 
-            if resp.status_code == 403:
-                logger.warning(
-                    "403 Forbidden: Cannot update record %s in zone %s, skipping...",
-                    name,
-                    zone_id,
-                )
-                notifyinformation[name] = "403 Forbidden: No permission to update record."
-                return None
+        if resp is None:
+            notifyinformation[name] = "Failed after retries."
+            return
 
-            notifyinformation[name] = "Successfully updated."
-            resp.raise_for_status()
+        if resp.status_code == 403:
+            notifyinformation[name] = "403 Forbidden: No permission to update record."
+            return
 
-        except requests.RequestException as e:
-            logger.error(
-                "Error updating record %s: %s, payload: %s",
-                name,
-                str(e),
-                payload,
-            )
-            notifyinformation[name] = f"Error updating record: {str(e)}"
+        if not resp.ok:
+            notifyinformation[name] = f"Error updating record: HTTP {resp.status_code}"
+            return
+
+        notifyinformation[name] = "Successfully updated."
 
     # ------------------------------------------------------------
     # Main update loop
     # ------------------------------------------------------------
     zones = get_all_zones()
-    logger.info("Found %i zones.", len(zones))
     notifyinformation: Dict[str, str] = {}
 
     for zone in zones:
@@ -173,5 +250,4 @@ def cloudflare(api_token: str, old_ip: str, new_ip: str) -> Dict[str, str]:
                 )
 
     logger.info("Update complete.")
-    logger.debug("Notification information: %s", notifyinformation)
     return notifyinformation
