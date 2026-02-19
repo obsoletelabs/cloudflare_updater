@@ -249,5 +249,8 @@ def cloudflare(api_token: str, old_ip: str, new_ip: str) -> Dict[str, str]:
                     bool(record["proxied"]),
                 )
 
-    logger.info("Update complete.")
+    if len(notifyinformation) == 0:
+        logger.info("No records needed updating.")
+    else:
+        logger.info("Update complete.")
     return notifyinformation
