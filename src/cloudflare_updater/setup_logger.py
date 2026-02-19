@@ -13,19 +13,18 @@ def setup_logger(
 ) -> logging.Logger:
     """Creates and returns the logger"""
 
-    match log_level:
-        case "DEBUG":
-            log_level = logging.DEBUG
-        case "INFO":
-            log_level = logging.INFO
-        case "WARNING":
-            log_level = logging.WARNING
-        case "ERROR":
-            log_level = logging.ERROR
-        case "CRITICAL":
-            log_level = logging.CRITICAL
-        case int() as lvl:
-            log_level = lvl
+    if log_level == "DEBUG":
+        log_level = logging.DEBUG
+    elif log_level == "INFO":
+        log_level = logging.INFO
+    elif log_level == "WARNING":
+        log_level = logging.WARNING
+    elif log_level == "ERROR":
+        log_level = logging.ERROR
+    elif log_level == "CRITICAL":
+        log_level = logging.CRITICAL
+    elif isinstance(log_level, int):
+        pass
 
     formatter = ColoredFormatter(
         "%(log_color)s%(asctime)s [%(levelname)s]%(reset)s %(message_log_color)s%(message)s",
