@@ -37,7 +37,13 @@ This container does not need any ports bound, as it purely sends outgoing traffi
 
 **LOG_LEVEL:** This lets you set the logging level of the output. Valid options are debug, info, warning, error, critical. This defaults to info, and we do not recommend changing this.
 
-**MAX_LOG_BYTES** The amount of bytes before the log file starts overwritting its self.
+**MAX_LOG_BYTES:** The amount of bytes before the log file starts overwritting its self.
+
+**PERSISTENT_FILE_PATH:** The location for the persistent ip file (enables restart emails). By default it is ```/config/persistent_ip.txt```
+
+**DISABLE_WELCOME_EMAIL:**
+
+***DISABLE_RESTART_EMAIL:**
 
 **TODO add docs for the color logging**
 

@@ -13,7 +13,7 @@ from utilities.send_webhooks import send as send_webhooks
 env = env_handler.Env()
 init_email_context = []
 
-VERSION = "1.0.0"
+VERSION = "1.1.0"
 
 ################################
 #           LOGGING            #
@@ -35,7 +35,20 @@ logger = setup_logger(
 
 # TODO: make it so that the logs are persistent somehow (mounting?) also add lastrun and currentrun logfile, plus the infinilogger.
 # TODO not sure what you mean by this as for persistent they are being stored in a file within the config folder so it should be mounted already
-first_ever_run_welcome_required = True
+
+# TODO: Zings can you please explain the env handler so I can use that instead?
+from os import environ
+persistent_file_path = environ.get("PERSISTENT_FILE_PATH", "/config/persistent_ip.txt")
+
+# persistent_file_path = env.PERSISTENT_FILE_PATH
+persistent_file = open(persistent_file_path, "w")
+for line in persistent_file:
+    persistent_ip = line.strip()
+if persistent_ip:
+    first_ever_run_welcome_required = False
+else:
+    first_ever_run_welcome_required = True
+persistent_file.close()
 
 
 # Get whoami urls
@@ -48,12 +61,17 @@ init_email_context.append(init_email_submessage)
 
 # Get the initial IP address, log, and set as OLD_IP
 OLD_IP: str
-if env.INITIAL_IP:
+if not first_ever_run_welcome_required:
+    logger.info("Previous IP found in persistent storage: %s", persistent_ip)
+    init_email_submessage = "INFO: Previous IP found in persistent storage."
+    init_email_context.append(init_email_submessage)
+    OLD_IP = persistent_ip
+elif env.INITIAL_IP:
     logger.warning("Initial IP overwritten by debug value. (Not recemended for production use)")
     init_email_context.append("WARNING: Initial IP overwritten by debug value. (Not recemended for production use)")
     OLD_IP = env.INITIAL_IP
 else:
-    OLD_IP = get_ip(whoami_urls=WHOAMI_URLS)
+    OLD_IP = get_ip(whoami_urls=WHOAMI_URLS)[0]
 logger.info("Initial IP set to: %s", OLD_IP)
 init_email_submessage = f"INFO: Initial IP set to: {OLD_IP}"
 init_email_context.append(init_email_submessage)
@@ -74,7 +92,7 @@ if eemail.smtp_enabled:
     enable_email_notifications = True
 
 
-def notify_ip_change(old_ip, new_ip, notifyinformation):
+def notify_ip_change(old_ip, new_ip, whoami_name, notifyinformation):
     """Notify IP change via enabled notifiers"""
     logger.debug("Sending webhooks")
     send_webhooks(f"WARNING ip {old_ip} CHANGED to {new_ip}!")
@@ -117,7 +135,21 @@ if first_ever_run_welcome_required:
     if not env.DISABLE_WELCOME_EMAIL:
         send_email(context, eemail.email_to)
 else:
-    logger.critical("OH DEAR GOD THE PROGRAM RESTARTED!!! NO FUTHER CODE WAS WRITTEN TO HANDLE IT?")
+    # Build HTML-formatted startup notes
+    additional_con = "<br>".join(str(item) for item in init_email_context)
+
+    context = {
+        "Subject": "Notice of Service Restart for " + service_name,
+        "Greeting": f"Message from {service_name},<br>",
+        "Body": (
+            "Your cloudflare updater service has restarted. Please see the startup notes for more information. <br>"
+            " Startup notes: <br>"
+            f"{additional_con}"
+        ),
+    }
+
+    if not env.DISABLE_RESTART_EMAIL:
+        send_email(context, eemail.email_to)
 
 ################################
 #          Main Loop           #
@@ -133,9 +165,9 @@ def main():
         logger.info("Checking for IP address change...")
 
         while True:
-            current_ip = get_ip(whoami_urls=WHOAMI_URLS)  # grab the current ip address
+            current_ip, whoami_name = get_ip(whoami_urls=WHOAMI_URLS)  # grab the current ip address
             if current_ip is not None:
-                logger.info("Current IP: %s", current_ip)
+                logger.info("Current IP as reported by %s: %s", whoami_name, current_ip)
                 break
             logger.warning("Could not retrieve current IP address, waiting %i seconds.", env.RETRY_INTERVAL_SECONDS)
             sleep(env.RETRY_INTERVAL_SECONDS)
@@ -154,8 +186,15 @@ def main():
             except Exception as e:
                 logger.critical("Error updating IP address via Cloudflare API: %s", e)
 
-            notify_ip_change(old_ip, current_ip, notifyinformation)
+            notify_ip_change(old_ip, current_ip, whoami_name, notifyinformation)
             old_ip = current_ip  # update OLD_IP
+
+            try:
+                with open(persistent_file_path, "w") as persistent_file:
+                    persistent_file.write(current_ip)  # update persistent storage
+            except Exception as e:
+                logger.error("Error writing current IP to persistent storage: %s", e)
+
             logger.info("Updated IP address to: %s", current_ip)
 
         logger.info("Sleeping for %s seconds...", env.CHECK_INTERVAL_SECONDS)
