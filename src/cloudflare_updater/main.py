@@ -122,6 +122,9 @@ def notify_ip_change(old_ip, new_ip, whoami_name, notifyinformation):
 
 # YOU SAID SOMEWHERE HERE U GO
 if first_ever_run_welcome_required:
+    with open(persistent_file_path, "w") as persistent_file:
+        persistent_file.write(OLD_IP)  # write initial IP to persistent storage when first run, ensures restart triggered even if no ip change.
+    
     # Build HTML-formatted startup notes
     additional_con = "<br>".join(str(item) for item in init_email_context)
 

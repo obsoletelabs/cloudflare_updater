@@ -50,10 +50,10 @@ def get_ip(whoami_urls: list[str]) -> tuple[str, str] | None:
             continue  # failover to the next url
 
     if x_forwarded_ip:
-        logger.info(f"Using X-Forwarded-For IP: {x_forwarded_ip} from {whoami_name}")
+        logger.debug(f"Using X-Forwarded-For IP: {x_forwarded_ip} from {whoami_name}")
         return x_forwarded_ip, whoami_name
     elif remote_addr:
-        logger.info(f"Using RemoteAddr IP: {remote_addr} from {whoami_name}")
+        logger.debug(f"Using RemoteAddr IP: {remote_addr} from {whoami_name}")
         return remote_addr, whoami_name
     #if ip:
     #    return ip
