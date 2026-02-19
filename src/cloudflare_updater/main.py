@@ -104,15 +104,33 @@ def notify_ip_change(old_ip, new_ip, whoami_name, notifyinformation):
     logger.debug("Done sending webhooks")
     # Add other notifiers here as needed
     if enable_email_notifications:
+
+        critical_string = ""
+        normal_string = ""
+
+        for cf_domain, update_info in notifyinformation.items(): # loop through the update information and split it into critical and normal information, this is done to make the email notification look better by grouping successful updates together and failed updates together, rather than having them intermingled which can be hard to read.
+            logger.debug(f"Cloudflare Update Info for {cf_domain}: {update_info}")
+            if update_info == "Successfully updated.":
+                normal_string += f"{cf_domain}: {update_info}<br>"
+            else:
+                critical_string += f"{cf_domain}: {update_info}<br>"
+
+        if critical_string != "": # only add the header if there is critical information to show, otherwise it just looks bad with a header and no content.
+            critical_string = "<br>The following issues were encountered while updating your Cloudflare zones:<br><br>" + critical_string + "<br><br>"
+        if normal_string != "": # only add the header if there is normal information to show, otherwise it just looks bad with a header and no content.
+            normal_string = "<br>The following zones were successfully updated:<br><br>" + normal_string + "<br><br>"
+
+        notifyinformation_str = critical_string + normal_string # merge critical and normal info, prioritising critical info.
+
         logger.debug("Sending email notification")
-        notifyinformation_str = "<br>".join(f"{k}: {v}" for k, v in notifyinformation.items())
+        # notifyinformation_str = "<br>".join(f"{k}: {v}" for k, v in notifyinformation.items()) # replaced to prioritise
         if notifyinformation_str == "":
             notifyinformation_str = "No additional information available - no updates occured."
 
         mail_context = {
             "Subject": "IP Address Change Detected for " + service_name,
             "Greeting": f"Message from {service_name},<br>",
-            "Body": f"Your IP address has changed from {old_ip} to {new_ip}. "
+            "Body": f"Your IP address has changed from {old_ip} to {new_ip}. Whoami service {whoami_name} reported the new IP."
             + "<br><br>Whilst updating zones avaliable to your API token, the updater has got the following information: <br><br>"
             + notifyinformation_str,
         }  # The body takes in HTML formatting
