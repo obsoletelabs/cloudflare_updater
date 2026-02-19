@@ -41,14 +41,16 @@ from os import environ
 persistent_file_path = environ.get("PERSISTENT_FILE_PATH", "/config/persistent_ip.txt")
 
 # persistent_file_path = env.PERSISTENT_FILE_PATH
-persistent_file = open(persistent_file_path, "w")
-for line in persistent_file:
-    persistent_ip = line.strip()
-if persistent_ip:
-    first_ever_run_welcome_required = False
-else:
+try:
+    with open(persistent_file_path, "r") as persistent_file:
+        for line in persistent_file:
+            persistent_ip = line.strip()
+        
+        first_ever_run_welcome_required = False
+except:
     first_ever_run_welcome_required = True
-persistent_file.close()
+
+
 
 
 # Get whoami urls
