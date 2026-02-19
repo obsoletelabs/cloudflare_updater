@@ -81,6 +81,25 @@ logger.info("Initial IP set to: %s", OLD_IP)
 init_email_submessage = f"INFO: Initial IP set to: {OLD_IP}"
 init_email_context.append(init_email_submessage)
 
+def check_if_local_ip(ip_address):
+    """Check if the given IP address is a local/private IP address."""
+    import ipaddress
+
+    try:
+        ip = ipaddress.ip_address(ip_address)
+        return ip.is_private
+    except ValueError:
+        logger.error("Invalid IP address format: %s", ip_address)
+        return False
+
+if check_if_local_ip(OLD_IP):
+    local_ip_warning = f"WARNING: The initial IP address {OLD_IP} appears to be a local/private IP address. This may indicate a misconfiguration or an issue with retrieving the public IP address. Please verify your network settings and ensure that the whoami URLs are correctly configured to return the public IP address."
+    logger.warning(local_ip_warning)
+    init_email_context.append(local_ip_warning)
+
+
+
+
 
 service_name = env.SERVICE_NAME
 logger.info("Service name set to: %s", service_name)
@@ -200,10 +219,27 @@ def main():
             logger.warning("Could not retrieve current IP address, waiting %i seconds.", env.RETRY_INTERVAL_SECONDS)
             sleep(env.RETRY_INTERVAL_SECONDS)
 
+        if check_if_local_ip(current_ip) != check_if_local_ip(old_ip):    
+            ip_type_change_warning = f"ERROR: whoami service {whoami_name} reported an IP address type change from {'local/private' if check_if_local_ip(old_ip) else 'public'} ({old_ip}) to {'local/private' if check_if_local_ip(current_ip) else 'public'} ({current_ip}). Update aborted to prevent misconfiguration, will revert back to previous IP address. If this keeps happening, please verify your network settings and ensure that the whoami URLs are correctly configured to return the type of IP address if that is what you expect."
+            logger.error(ip_type_change_warning)
+            if enable_email_notifications:
+                ip_type_change_warning = f"ERROR: whoami service {whoami_name} reported an IP address type change from {'local/private' if check_if_local_ip(old_ip) else 'public'} ({old_ip}) to {'local/private' if check_if_local_ip(current_ip) else 'public'} ({current_ip}). <br><br>Update has been aborted to prevent misconfiguration, and will be restored to previous the IP address ({old_ip}). <br><br>If this keeps happening, please verify your network settings and ensure that the whoami URLs are correctly configured to return the type of IP address if that is what you expect. <br><br>You may need to set (or remove) your INITIAL_IP environment variable to ensure the correct type."
+                send_email(
+                    {
+                        "Subject": f"IP Address Type Change Detected for {service_name}",
+                        "Greeting": f"Message from {service_name},<br>",
+                        "Body": ip_type_change_warning,
+                    },
+                    eemail.email_to,
+                )
+            current_ip = old_ip  # revert back to previous IP to prevent misconfiguration
+
+
         # Compare with OLD_IP and update if changed
         if current_ip != old_ip:
             # Ip change detected
             logger.warning("IP change detected: %s --> %s", old_ip, current_ip)
+                
             # Send notifications if enabled
 
             # Update via Cloudflare API
