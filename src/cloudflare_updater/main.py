@@ -36,13 +36,8 @@ logger = setup_logger(
 # TODO: make it so that the logs are persistent somehow (mounting?) also add lastrun and currentrun logfile, plus the infinilogger.
 # TODO not sure what you mean by this as for persistent they are being stored in a file within the config folder so it should be mounted already
 
-# TODO: Zings can you please explain the env handler so I can use that instead?
-from os import environ
-persistent_file_path = environ.get("PERSISTENT_FILE_PATH", "/config/persistent_ip.txt")
-
-# persistent_file_path = env.PERSISTENT_FILE_PATH
 try:
-    with open(persistent_file_path, "r") as persistent_file:
+    with open(env.PERSISTENT_FILE_PATH, "r") as persistent_file:
         for line in persistent_file:
             persistent_ip = line.strip()
         
@@ -160,7 +155,7 @@ def notify_ip_change(old_ip, new_ip, whoami_name, notifyinformation):
 # YOU SAID SOMEWHERE HERE U GO
 if first_ever_run_welcome_required:
     logger.info("No previous IP found in persistent storage, or no file exists, treating as first run.")
-    with open(persistent_file_path, "w") as persistent_file:
+    with open(env.PERSISTENT_FILE_PATH, "w") as persistent_file:
         persistent_file.write(OLD_IP)  # write initial IP to persistent storage when first run, ensures restart triggered even if no ip change.
     
     # Build HTML-formatted startup notes
@@ -254,7 +249,7 @@ def main():
             old_ip = current_ip  # update OLD_IP
 
             try:
-                with open(persistent_file_path, "w") as persistent_file:
+                with open(env.PERSISTENT_FILE_PATH, "w") as persistent_file:
                     persistent_file.write(current_ip)  # update persistent storage
             except Exception as e:
                 logger.error("Error writing current IP to persistent storage: %s", e)

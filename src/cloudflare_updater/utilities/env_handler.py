@@ -6,7 +6,6 @@ from utilities.value_verifier import is_cloudflare_token_valid
 
 logger = logging.getLogger(__name__)
 
-
 class Env:
     # Required
     CLOUDFLARE_API_TOKEN: str
@@ -41,6 +40,8 @@ class Env:
     NITIFIER_SMTP_EMAIL_TO_ADDRESSES: list = []
 
     SERVICE_NAME: str = "Obsoletelabs Cloudflare Updater"
+
+    PERSISTENT_FILE_PATH: str = "/config/persistent_ip.txt"
 
     # Internal use
     IS_CONFIG_VALID: bool = True
